@@ -133,3 +133,35 @@ if(RIF_WINDOWS)
     endif()
 
 endif()
+
+set(SNOWBALL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/snowball")
+set(SNOWBALL_LIB_PATH "${SNOWBALL_DIR}/libstemmer.a")
+set(SNOWBALL_INCLUDE_PATH "${SNOWBALL_DIR}/include")
+
+# Проверяем наличие библиотеки
+if(EXISTS "${SNOWBALL_LIB_PATH}")
+    message(STATUS "Found Snowball library: ${SNOWBALL_LIB_PATH}")
+    
+    # Добавляем заголовочные файлы
+    target_include_directories(RIF PRIVATE "${SNOWBALL_INCLUDE_PATH}")
+    
+    # Линкуем библиотеку
+    target_link_libraries(RIF "${SNOWBALL_LIB_PATH}")
+    
+    # Для Windows может потребоваться явно указать линковку C библиотеки
+    if(MSVC)
+        # Создаем импортированную цель
+        add_library(snowball STATIC IMPORTED)
+        set_target_properties(snowball PROPERTIES
+            IMPORTED_LOCATION "${SNOWBALL_LIB_PATH}"
+        )
+        target_link_libraries(RIF snowball)
+    endif()
+    
+    target_compile_definitions(RIF PRIVATE HAVE_SNOWBALL=1)
+    
+else()
+    message(WARNING "Snowball library not found at: ${SNOWBALL_LIB_PATH}")
+    message(WARNING "Stemming will be disabled")
+    target_compile_definitions(RIF PRIVATE HAVE_SNOWBALL=0)
+endif()
