@@ -5,13 +5,7 @@
 #include <char.hpp>
 #include <iostream>
 
-#ifdef _WIN32
 
-std::string utf8_to_cp1251(std::string&& utf8);
-
-#endif
-
-string format(string&& in);
 
 class DocxReader : public BaseReader<DocxReader> {
 private:
@@ -30,7 +24,7 @@ private:
         if (!doc.is_open())co_return;
         for (auto p : doc.paragraphs()) {
             for (auto r : p.runs()) {
-                co_yield format(r.get_text());
+                co_yield formatToLocal(r.get_text());
             }
         }
     }

@@ -53,3 +53,4 @@ set_target_properties(snowball PROPERTIES
     ARCHIVE_OUTPUT_NAME snowball
     POSITION_INDEPENDENT_CODE ON
 )
+

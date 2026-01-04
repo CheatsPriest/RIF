@@ -71,7 +71,7 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp" "src/configs/S
 "src/read/UnifiedReader.hpp" "src/read/UnifiedReader.cpp"
 "src/search/ThreadSerachPool.hpp" "src/search/SearchExact.hpp"
 "src/core/core.hpp" "src/core/Core.cpp"  "src/search/ThreadSerachPool.cpp"
-"src/preproc/Preprocessor.hpp" "src/preproc/Preprocessor.cpp" "src/preproc/PreRegisters.hpp" "src/search/SearchEngine.hpp" "src/search/SearchRawResult.hpp" "src/read/docx/DocxReader.hpp" "src/read/docx/DocxReader.cpp")
+"src/preproc/Preprocessor.hpp" "src/preproc/Preprocessor.cpp" "src/preproc/PreRegisters.hpp" "src/search/SearchEngine.hpp" "src/search/SearchRawResult.hpp" "src/read/docx/DocxReader.hpp" "src/read/docx/DocxReader.cpp" "src/char.cpp" "src/search/synonymous/Stemmer.hpp" "src/search/synonymous/Stemmer.cpp" "src/preproc/PreSynonyms.hpp" "src/preproc/PreSynonyms.cpp" "src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp")
 
 # Платформо-специфичные файлы
 if(SQLID_WINDOWS)
@@ -81,6 +81,9 @@ elseif(SQLID_LINUX)
 endif()
 
 #target_include_directories(RIF PRIVATE ${Boost_INCLUDE_DIRS})
+
+
+
 
 # Директории include
 target_include_directories(RIF 
@@ -106,7 +109,7 @@ if(RIF_WINDOWS)
             "${DUCKX_SOURCE_DIR}/src/duckx.cpp"
             "${DUCKX_SOURCE_DIR}/thirdparty/pugixml/pugixml.cpp"
             "${DUCKX_SOURCE_DIR}/thirdparty/zip/zip.c"
-        )
+         )
         
         # Подключаем заголовочные файлы
         target_include_directories(duckx PUBLIC
@@ -165,3 +168,4 @@ else()
     message(WARNING "Stemming will be disabled")
     target_compile_definitions(RIF PRIVATE HAVE_SNOWBALL=0)
 endif()
+
