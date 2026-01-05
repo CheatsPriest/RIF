@@ -44,7 +44,6 @@ public:
     }
     std::vector<size_t> search(UnifiedReader& reader) {
         const auto& map = settings.synonyms_per_group;
-        if (map.size() == 0)return {};
 
         clearQueues();
 

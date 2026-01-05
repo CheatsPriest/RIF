@@ -5,7 +5,6 @@ reader_v openFile(const std::string& fileName) {
      std::filesystem::path p(fileName);
 
      std::string extension = p.extension().string();
-     std::cout << extension << std::endl;
      if (extension == ".pdf") {
          return MmapReader(fileName);
      }

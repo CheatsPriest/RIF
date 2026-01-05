@@ -16,18 +16,18 @@ class UnifiedReader {
 private:
     reader_v reader;
     SearchConfig& config;
-
+    size_t prev_word_size;
 public:
     char_t readSymbol() const {
         return std::visit([](const auto& r) { return r.readSymbol(); }, reader);
     }
     // Конструкторы
     explicit UnifiedReader(const std::string& filename)
-        : reader(openFile(filename)), config(SearchConfig::get()) {
+        : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0){
     }
 
     explicit UnifiedReader(reader_v&& r)
-        : reader(std::move(r)), config(SearchConfig::get() ){
+        : reader(std::move(r)), config(SearchConfig::get() ), prev_word_size(0){
     }
     
 
@@ -41,7 +41,7 @@ public:
     }
 
     size_t getPos() const {
-        return std::visit([](const auto& r) { return r.getPos(); }, reader);
+        return std::visit([](const auto& r) { return r.getPos(); }, reader)- prev_word_size;
     }
     
     bool empty()  {
@@ -87,7 +87,7 @@ public:
             res += readSymbol();
             moveToSymbol(1);
         }
-        
+        prev_word_size = res.size();
         return formatToLocal(std::move(res));
     }
 
@@ -103,7 +103,6 @@ public:
         long long zone_size = config.right_context + pos - left + config.raw_templ.size();//чтобы если left = 0, то не выделять лишнюю память
         context.reserve(zone_size); 
 
-        std::cout << left << " AAAAA " << zone_size << std::endl;
         moveToSymbol(left);
         for (long long i = 0; i < zone_size and !empty(); i++) {
             context += readSymbol();

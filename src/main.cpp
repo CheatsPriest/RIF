@@ -29,7 +29,8 @@ int main() {
     //    std::cout << "прием" << " -> " << stemmer.stem("пРием") << std::endl;
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
-
+    auto& cfg = SearchConfig::get();
+    cfg.raw_templ = "большие деньги";
     Core core;
     int prob;
 
@@ -37,6 +38,10 @@ int main() {
     core.resizeSearchPool();
     
     
+    core.startSeacrhing();
+
+
+    cfg.raw_templ = "деньги";
     core.startSeacrhing();
 
     std::cin >> prob;

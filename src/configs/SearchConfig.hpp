@@ -25,7 +25,7 @@ public:
 	std::vector<std::string> initial_folders = { "C://src", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = "огромная техника";//неотформатированный 
+	string raw_templ = "огромные деньги";//неотформатированный 
 	string exact_templ = "";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';
@@ -93,6 +93,13 @@ struct SynonymsSettings {
 	static SynonymsSettings& get() {
 		static SynonymsSettings instance;
 		return instance;
+	}
+	void flushDown() {
+		synonyms_per_group.clear();
+		groupId_count_read_only.clear();
+		target_amount = 0;
+		raw_synonyms.clear();
+		words_from_template.clear();
 	}
 private:
 	SynonymsSettings() = default;
