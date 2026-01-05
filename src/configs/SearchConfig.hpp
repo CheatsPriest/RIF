@@ -25,7 +25,7 @@ public:
 	std::vector<std::string> initial_folders = { "C://src", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = "target text";//неотформатированный 
+	string raw_templ = "большая машина огромная. много денег. немало средств";//неотформатированный 
 	string exact_templ = "";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';
@@ -65,6 +65,7 @@ struct SynonymsSettings {
 	bool use_synonyms = false;
 	size_t max_synonym_distance = 10;
 
+	std::unordered_map<string, size_t> words_from_template;
 	/*
 	Синонимы для ключевых терминов
 	 Очистить после обработки по группам
@@ -78,6 +79,7 @@ struct SynonymsSettings {
 	*/
 	long long target_amount;
 	size_t max_group_id;
+	std::vector<size_t> groupId_count_read_only;
 	std::unordered_map<string, size_t> synonyms_per_group;
 
 	// Стоп-слова для пропуска

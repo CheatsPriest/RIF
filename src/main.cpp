@@ -7,17 +7,28 @@
 #include <fstream>
 #include <search/synonymous/StemmerPipeline.hpp>
 
+#include <preproc/PreSynonyms.hpp>
+
 int main() {
 
-    
-    {
-        StemmerPipeline stemmer("russian");
-
-        // Теперь русские слова в CP1251 будут правильно стеммиться
-        std::cout << "принят" << " -> " << stemmer.stem("Принят") << std::endl;
-        std::cout << "прием" << " -> " << stemmer.stem("пРием") << std::endl;
-        std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
+    PreSynonyms pr;
+    pr.run();
+    for (auto& el : SynonymsSettings::get().groupId_count_read_only) {
+        std::cout << el << std::endl;
     }
+    for (auto& el : SynonymsSettings::get().synonyms_per_group) {
+        std::cout << el.first << " " << el.second << std::endl;
+    }
+    auto& cfg = SynonymsSettings::get();
+    cfg;
+    //{
+    //    StemmerPipeline stemmer("russian");
+
+    //    // Теперь русские слова в CP1251 будут правильно стеммиться
+    //    std::cout << "принят" << " -> " << stemmer.stem("Принят") << std::endl;
+    //    std::cout << "прием" << " -> " << stemmer.stem("пРием") << std::endl;
+    //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
+    //}
 
     /*Core core;
     int prob;

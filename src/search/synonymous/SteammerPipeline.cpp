@@ -8,6 +8,5 @@ void StemmerPipeline::changeLanguage(std::string_view language) {
 
 std::string StemmerPipeline::stem(std::string&& word) {
     lower_case(word);
-    std::cout << word << std::endl;
     return steammer.stem(std::move(word));
 }
