@@ -25,14 +25,14 @@ public:
 	std::vector<std::string> initial_folders = { "C://src", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = "большая машина огромная. много денег. немало средств";//неотформатированный 
+	string raw_templ = "огромная техника";//неотформатированный 
 	string exact_templ = "";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';
 	char_t substring_symbol = '?';
 
-	long long left_context = 7;
-	long long right_context = 7;
+	long long left_context = 25;
+	long long right_context = 25;
 
 	std::unordered_set<char_t> separators = { '.', ',', '!', '?', ';', ':', '(', ')',
 					'[', ']', '{', '}', '"', '\'', '-', '_',
@@ -62,10 +62,10 @@ private:
 };
 
 struct SynonymsSettings {
-	bool use_synonyms = false;
-	size_t max_synonym_distance = 10;
+	bool use_synonyms = true;
+	size_t max_synonym_distance = 5;
 
-	std::unordered_map<string, size_t> words_from_template;
+	std::unordered_map<string, long long> words_from_template;
 	/*
 	Синонимы для ключевых терминов
 	 Очистить после обработки по группам
@@ -79,7 +79,7 @@ struct SynonymsSettings {
 	*/
 	long long target_amount;
 	size_t max_group_id;
-	std::vector<size_t> groupId_count_read_only;
+	std::vector<long long> groupId_count_read_only;
 	std::unordered_map<string, size_t> synonyms_per_group;
 
 	// Стоп-слова для пропуска

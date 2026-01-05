@@ -18,12 +18,14 @@ class ProcessWordsFromTemplateForSynonyms {
     SearchConfig& search_config;
     SynonymsSettings& settings;
     Lowercaser lower_case;
+    long long factor;
 public:
-    ProcessWordsFromTemplateForSynonyms() : search_config(SearchConfig::get()), settings(SynonymsSettings::get()) {
+    ProcessWordsFromTemplateForSynonyms() : search_config(SearchConfig::get()), settings(SynonymsSettings::get()), factor(0){
 
     }
 
     void operator()() {
+        factor = 0;
         settings.words_from_template.clear();
         string cur = "";
 
@@ -32,6 +34,7 @@ public:
                 //lower_case(cur);
                 settings.words_from_template[stem.stem(std::move(cur))]++;
                 cur.clear();
+                factor++;
             }
             else if (!is_separator(c)) {
                 cur += c;
@@ -41,14 +44,16 @@ public:
         if (!cur.empty()) {
             lower_case(cur);
             settings.words_from_template[stem.stem(std::move(cur))]++;
+            factor++;
             cur.clear();
         }
+        settings.target_amount = factor;
     }
 
 };
 
 struct group_info {
-    size_t count;
+    long long count;
     size_t future_id;
 };
 
@@ -61,6 +66,8 @@ public:
 
     void operator()(const std::string& folder_path = "C:\\testFlood\\synonyms") {
         read_from_folder(folder_path);
+        settings.words_from_template.clear();
+        settings.max_group_id = free_group_id;
     }
 
     

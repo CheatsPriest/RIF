@@ -11,7 +11,7 @@
 
 int main() {
 
-    PreSynonyms pr;
+    /*PreSynonyms pr;
     pr.run();
     for (auto& el : SynonymsSettings::get().groupId_count_read_only) {
         std::cout << el << std::endl;
@@ -20,7 +20,7 @@ int main() {
         std::cout << el.first << " " << el.second << std::endl;
     }
     auto& cfg = SynonymsSettings::get();
-    cfg;
+    cfg;*/
     //{
     //    StemmerPipeline stemmer("russian");
 
@@ -30,15 +30,16 @@ int main() {
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
 
-    /*Core core;
+    Core core;
     int prob;
 
     SearchConfig::get().amount_of_search_threads = 1;
     core.resizeSearchPool();
     
+    
     core.startSeacrhing();
 
-    std::cin >> prob;*/
+    std::cin >> prob;
 
 
     

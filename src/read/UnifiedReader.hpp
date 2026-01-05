@@ -87,7 +87,8 @@ public:
             res += readSymbol();
             moveToSymbol(1);
         }
-        return res;
+        
+        return formatToLocal(std::move(res));
     }
 
     // Перейти к следующему слову
@@ -99,14 +100,16 @@ public:
         long long left = (pos > config.left_context) ? pos - config.left_context : 0ll;
         
         string context;
-        long long zone_size = config.right_context + pos - left + config.exact_templ.size();//чтобы если left = 0, то не выделять лишнюю память
+        long long zone_size = config.right_context + pos - left + config.raw_templ.size();//чтобы если left = 0, то не выделять лишнюю память
         context.reserve(zone_size); 
 
+        std::cout << left << " AAAAA " << zone_size << std::endl;
         moveToSymbol(left);
         for (long long i = 0; i < zone_size and !empty(); i++) {
             context += readSymbol();
             moveToSymbol(1);
         }
-        return context;
+        
+        return formatToLocal(std::move(context));
     }
 };
