@@ -1,4 +1,5 @@
-#pragma once
+п»ї#pragma once
+
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -56,7 +57,7 @@
 #define NOMSG
 #pragma once
 
-// Минимальные заголовки Windows
+// РњРёРЅРёРјР°Р»СЊРЅС‹Рµ Р·Р°РіРѕР»РѕРІРєРё Windows
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include <Windows.h>
@@ -65,13 +66,13 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "char.hpp"  // Предполагаем, что тут: using char_t = char;
+#include "char.hpp"  // РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ С‚СѓС‚: using char_t = char;
 
 class MemoryMapWindows {
 private:
     HANDLE hFile = INVALID_HANDLE_VALUE;
     HANDLE hMap = NULL;
-    const char* mappedData = nullptr;  // Сырые байты
+    const char* mappedData = nullptr;  // РЎС‹СЂС‹Рµ Р±Р°Р№С‚С‹
     size_t fileSize = 0;
 
 public:
@@ -111,7 +112,7 @@ public:
 
         fileSize = static_cast<size_t>(liSize.QuadPart);
 
-        // Пустой файл - нормально
+        // РџСѓСЃС‚РѕР№ С„Р°Р№Р» - РЅРѕСЂРјР°Р»СЊРЅРѕ
         if (fileSize == 0) {
             CloseHandle(hFile);
             hFile = INVALID_HANDLE_VALUE;
@@ -122,7 +123,7 @@ public:
             hFile,
             NULL,
             PAGE_READONLY,
-            0, 0,  // Весь файл
+            0, 0,  // Р’РµСЃСЊ С„Р°Р№Р»
             NULL
         );
 
@@ -133,7 +134,7 @@ public:
         }
 
         mappedData = static_cast<const char*>(
-            MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, fileSize)  // Указать размер!
+            MapViewOfFile(hMap, FILE_MAP_READ, 0, 0, fileSize)  // РЈРєР°Р·Р°С‚СЊ СЂР°Р·РјРµСЂ!
             );
 
         if (!mappedData) {
@@ -147,7 +148,7 @@ public:
         return true;
     }
 
-    // Прочитать байт по позиции
+    // РџСЂРѕС‡РёС‚Р°С‚СЊ Р±Р°Р№С‚ РїРѕ РїРѕР·РёС†РёРё
     char readByteAt(size_t position) const {
         if (!mappedData || position >= fileSize) {
             return '\0';
@@ -155,8 +156,8 @@ public:
         return mappedData[position];
     }
 
-    // Прочитать символ как char_t
-    // Предполагаем, что char_t == char для UTF-8
+    // РџСЂРѕС‡РёС‚Р°С‚СЊ СЃРёРјРІРѕР» РєР°Рє char_t
+    // РџСЂРµРґРїРѕР»Р°РіР°РµРј, С‡С‚Рѕ char_t == char РґР»СЏ UTF-8
     char_t readCharAt(size_t position) const {
         return static_cast<char_t>(readByteAt(position));
     }
@@ -165,9 +166,9 @@ public:
         return mappedData;
     }
 
-    // Для совместимости с кодом, ожидающим char_t*
+    // Р”Р»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё СЃ РєРѕРґРѕРј, РѕР¶РёРґР°СЋС‰РёРј char_t*
     const char_t* data() const {
-        // Безопасный каст только если char_t == char
+        // Р‘РµР·РѕРїР°СЃРЅС‹Р№ РєР°СЃС‚ С‚РѕР»СЊРєРѕ РµСЃР»Рё char_t == char
         static_assert(sizeof(char_t) == sizeof(char),
             "char_t must be same size as char");
         return reinterpret_cast<const char_t*>(mappedData);
@@ -206,11 +207,11 @@ public:
         fileSize = 0;
     }
 
-    // Запретить копирование
+    // Р—Р°РїСЂРµС‚РёС‚СЊ РєРѕРїРёСЂРѕРІР°РЅРёРµ
     MemoryMapWindows(const MemoryMapWindows&) = delete;
     MemoryMapWindows& operator=(const MemoryMapWindows&) = delete;
 
-    // Разрешить перемещение
+    // Р Р°Р·СЂРµС€РёС‚СЊ РїРµСЂРµРјРµС‰РµРЅРёРµ
     MemoryMapWindows(MemoryMapWindows&& other) noexcept {
         *this = std::move(other);
     }

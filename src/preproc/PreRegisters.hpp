@@ -1,10 +1,10 @@
-#pragma once
+п»ї#pragma once
 
 #include <configs/SearchConfig.hpp>
 #include <locale>
 #include <format>
 
-
+ 
 
 class PreRegisters {
 private:
@@ -14,7 +14,7 @@ private:
 public:
     PreRegisters()
         : config(SearchConfig::get())
-        , sys_locale("")  // Инициализируем один раз
+        , sys_locale("")  // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј РѕРґРёРЅ СЂР°Р·
     {
     }
 

@@ -3,7 +3,6 @@
 #include <locale>
 
 
-setlocale(LC_ALL, "ru_RU.UTF-8");
 
 using char_t =  unsigned char;
 using string = std::string;

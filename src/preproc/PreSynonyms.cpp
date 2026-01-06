@@ -77,10 +77,10 @@ private:
         namespace fs = std::filesystem;
         free_group_id = 0;
 
-        if (!fs::exists(folder_path)) {
-            std::cerr << "Папка " << folder_path << " не найдена!" << std::endl;
+        /*if (!fs::exists(folder_path)) {
+            std::cout << "Папка " << folder_path << " не найдена!" << std::endl;
             return false;
-        }
+        }*/
 
         // Проходим по всем языковым папкам
         for (const auto& lang_dir : fs::directory_iterator(folder_path)) {

@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <read/ReadersVariants.hpp>
 
 #include <string>
@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include <configs/SearchConfig.hpp>
+
 
 reader_v openFile(const std::string& fileName);
 
@@ -21,7 +22,7 @@ public:
     char_t readSymbol() const {
         return std::visit([](const auto& r) { return r.readSymbol(); }, reader);
     }
-    // Конструкторы
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹
     explicit UnifiedReader(const std::string& filename)
         : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0){
     }
@@ -53,23 +54,23 @@ public:
 
     const char_t* getPtr() const {
         return std::visit([](const auto& r) {
-            // У BaseReader нет getPtr, но у наследников может быть
-            // Если нужен - добавим в BaseReader
+            // РЈ BaseReader РЅРµС‚ getPtr, РЅРѕ Сѓ РЅР°СЃР»РµРґРЅРёРєРѕРІ РјРѕР¶РµС‚ Р±С‹С‚СЊ
+            // Р•СЃР»Рё РЅСѓР¶РµРЅ - РґРѕР±Р°РІРёРј РІ BaseReader
             return static_cast<const char_t*>(nullptr);
             }, reader);
     }
 
 
     void rewind() {
-        // Перемотка в начало - если нет специального метода,
-        // закрываем и открываем заново или ищем способ сбросить позицию
-        // Пока заглушка
+        // РџРµСЂРµРјРѕС‚РєР° РІ РЅР°С‡Р°Р»Рѕ - РµСЃР»Рё РЅРµС‚ СЃРїРµС†РёР°Р»СЊРЅРѕРіРѕ РјРµС‚РѕРґР°,
+        // Р·Р°РєСЂС‹РІР°РµРј Рё РѕС‚РєСЂС‹РІР°РµРј Р·Р°РЅРѕРІРѕ РёР»Рё РёС‰РµРј СЃРїРѕСЃРѕР± СЃР±СЂРѕСЃРёС‚СЊ РїРѕР·РёС†РёСЋ
+        // РџРѕРєР° Р·Р°РіР»СѓС€РєР°
     }
 
-    // === РАБОТА СО СЛОВАМИ ===
+    // === Р РђР‘РћРўРђ РЎРћ РЎР›РћР’РђРњР ===
 
 private:
-    // Пропустить разделители
+    // РџСЂРѕРїСѓСЃС‚РёС‚СЊ СЂР°Р·РґРµР»РёС‚РµР»Рё
     void skipSeparators() {
         while (!empty() && is_separator(readSymbol())) {
             moveToSymbol(1);
@@ -77,7 +78,7 @@ private:
     }
 
 public:
-    // Прочитать слово
+    // РџСЂРѕС‡РёС‚Р°С‚СЊ СЃР»РѕРІРѕ
     string readWord() {
         if (empty()) return {};
 
@@ -85,7 +86,7 @@ public:
         if (empty()) return {};
 
         string res;
-        res.reserve(16);//средняя длина слов
+        res.reserve(16);//СЃСЂРµРґРЅСЏСЏ РґР»РёРЅР° СЃР»РѕРІ
         while (!empty() && !is_separator(readSymbol())) {
             res += readSymbol();
             moveToSymbol(1);
@@ -94,7 +95,7 @@ public:
         return formatToLocal(std::move(res));
     }
 
-    // Перейти к следующему слову
+    // РџРµСЂРµР№С‚Рё Рє СЃР»РµРґСѓСЋС‰РµРјСѓ СЃР»РѕРІСѓ
     bool moveToNextWord() {
         skipSeparators();
         return !empty();
@@ -103,7 +104,7 @@ public:
         long long left = (left_pos > config.left_context) ? left_pos - config.left_context : 0ll;
         
         string context;
-        long long zone_size = config.right_context + right_pos - left ;//чтобы если left = 0, то не выделять лишнюю память
+        long long zone_size = config.right_context + right_pos - left ;//С‡С‚РѕР±С‹ РµСЃР»Рё left = 0, С‚Рѕ РЅРµ РІС‹РґРµР»СЏС‚СЊ Р»РёС€РЅСЋСЋ РїР°РјСЏС‚СЊ
         context.reserve(zone_size); 
 
         moveToSymbol(left);

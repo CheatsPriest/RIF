@@ -1,4 +1,4 @@
-#pragma once
+п»ї#pragma once
 #include <read/UnifiedReader.hpp>
 #include <configs/SearchConfig.hpp>
 #include <vector>
@@ -6,7 +6,7 @@
 #include <queue>
 #include <search/synonymous/StemmerPipeline.hpp>
 
-
+ 
 class SearchSynonymous {
 private:
     SearchConfig& config;
@@ -50,11 +50,11 @@ public:
         std::vector<RawResult> result;
         result.reserve(4);
 
-        //то что надо обнулить но не загнать в минус
+        //С‚Рѕ С‡С‚Рѕ РЅР°РґРѕ РѕР±РЅСѓР»РёС‚СЊ РЅРѕ РЅРµ Р·Р°РіРЅР°С‚СЊ РІ РјРёРЅСѓСЃ
         factor = settings.target_amount;
         groups = settings.groupId_count_read_only;
 
-        //сюда кладем позиции на которых стоят синонимы в текущем окне
+        //СЃСЋРґР° РєР»Р°РґРµРј РїРѕР·РёС†РёРё РЅР° РєРѕС‚РѕСЂС‹С… СЃС‚РѕСЏС‚ СЃРёРЅРѕРЅРёРјС‹ РІ С‚РµРєСѓС‰РµРј РѕРєРЅРµ
         
         size_t walk_id = 0;
         
@@ -82,7 +82,7 @@ public:
                 }
                 if (factor == 0) {
                     result.push_back({ ids_in_file.front(), ids_in_file.back()+reader.getWordSize()});
-                    //если рассинхрон 2 очередей, то значит алгоритм нетедерминированный
+                    //РµСЃР»Рё СЂР°СЃСЃРёРЅС…СЂРѕРЅ 2 РѕС‡РµСЂРµРґРµР№, С‚Рѕ Р·РЅР°С‡РёС‚ Р°Р»РіРѕСЂРёС‚Рј РЅРµС‚РµРґРµСЂРјРёРЅРёСЂРѕРІР°РЅРЅС‹Р№
                     while (!ids_in_file.empty()) {
                         cascadPop();
                     }

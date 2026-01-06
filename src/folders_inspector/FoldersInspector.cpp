@@ -1,4 +1,4 @@
-#include "FoldersInspector.hpp"
+п»ї#include "FoldersInspector.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -7,7 +7,7 @@
 #include <queue>
 #include <algorithm>
 
-// Мое
+// РњРѕРµ
 #include <global/GlobalQueues.hpp>
 
 namespace fs = std::filesystem;
@@ -40,7 +40,7 @@ struct FoldersInspector::Impl {
         clearFolders();
         memory.clear();
 
-        // Добавляем начальные папки
+        // Р”РѕР±Р°РІР»СЏРµРј РЅР°С‡Р°Р»СЊРЅС‹Рµ РїР°РїРєРё
         for (const auto& folder : config.initial_folders) {
             if (fs::exists(folder) && fs::is_directory(folder)) {
                 addFolder(folder, 0);
@@ -54,7 +54,7 @@ struct FoldersInspector::Impl {
             processFolder(current.folder, current.cur_depth);
         }
 
-        std::cout << "\nОбход завершён.\n";
+        std::cout << "\nРћР±С…РѕРґ Р·Р°РІРµСЂС€С‘РЅ.\n";
     }
 
     Impl() : config(SearchConfig::get()) {
@@ -94,12 +94,12 @@ private:
                 std::string path_str = path.string();
 
                 if (entry.is_directory()) {
-                    // Проверяем, не игнорируется ли папка
+                    // РџСЂРѕРІРµСЂСЏРµРј, РЅРµ РёРіРЅРѕСЂРёСЂСѓРµС‚СЃСЏ Р»Рё РїР°РїРєР°
                     if (shouldIgnoreFolder(path.filename().string())) {
                         continue;
                     }
 
-                    // Проверяем глубину рекурсии
+                    // РџСЂРѕРІРµСЂСЏРµРј РіР»СѓР±РёРЅСѓ СЂРµРєСѓСЂСЃРёРё
                     if (current_depth < config.depth) {
                         addFolder(path_str, current_depth + 1);
                     }
@@ -111,19 +111,19 @@ private:
             return true;
         }
         catch (const fs::filesystem_error& e) {
-            std::cerr << "Ошибка доступа к папке " << folder_path
+            std::cout << "РћС€РёР±РєР° РґРѕСЃС‚СѓРїР° Рє РїР°РїРєРµ " << folder_path
                 << ": " << e.what() << std::endl;
             return false;
         }
     }
 
     bool shouldIgnoreFolder(const std::string& folder_name) const {
-        // Проверяем по имени папки
+        // РџСЂРѕРІРµСЂСЏРµРј РїРѕ РёРјРµРЅРё РїР°РїРєРё
         if (config.ignored_folders.contains(folder_name)) {
             return true;
         }
 
-        // Игнорируем скрытые папки (начинающиеся с . кроме ..)
+        // РРіРЅРѕСЂРёСЂСѓРµРј СЃРєСЂС‹С‚С‹Рµ РїР°РїРєРё (РЅР°С‡РёРЅР°СЋС‰РёРµСЃСЏ СЃ . РєСЂРѕРјРµ ..)
         if (folder_name.empty()) return true;
         if (folder_name[0] == '.' && folder_name != "..") {
             return true;
