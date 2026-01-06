@@ -4,6 +4,9 @@
 
 
 struct RawResult {
-	string filename;
-	size_t postiton;
+	size_t start;
+	size_t end;
+	bool operator<(const RawResult& rhs) const {
+		return start < rhs.start;
+	}
 };

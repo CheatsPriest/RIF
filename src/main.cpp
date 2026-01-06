@@ -8,9 +8,9 @@
 #include <search/synonymous/StemmerPipeline.hpp>
 
 #include <preproc/PreSynonyms.hpp>
+#include <locale>
 
 int main() {
-
     /*PreSynonyms pr;
     pr.run();
     for (auto& el : SynonymsSettings::get().groupId_count_read_only) {
@@ -30,7 +30,8 @@ int main() {
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
     auto& cfg = SearchConfig::get();
-    cfg.raw_templ = "большие деньги";
+    
+    //cfg.raw_templ = "большие деньги";
     Core core;
     int prob;
 
@@ -42,7 +43,7 @@ int main() {
 
 
     cfg.raw_templ = "деньги";
-    core.startSeacrhing();
+    //core.startSeacrhing();
 
     std::cin >> prob;
 

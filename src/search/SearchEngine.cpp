@@ -1,7 +1,7 @@
 #include <search/SearchEngine.hpp>
 
 
-void mergeTwoVectors(const std::vector<std::vector<size_t>>& buf_vector, std::vector<size_t>& final_vector) {
+void mergeTwoVectors(const std::vector<std::vector<RawResult>>& buf_vector, std::vector<RawResult>& final_vector) {
     if (buf_vector.empty()) return;
     if (buf_vector.size() == 1) {
         final_vector = buf_vector[0];
@@ -17,12 +17,12 @@ void mergeTwoVectors(const std::vector<std::vector<size_t>>& buf_vector, std::ve
     size_t i = 0, j = 0;
 
     while (i < v1.size() && j < v2.size()) {
-        size_t current;
+        RawResult current;
 
         if (v1[i] < v2[j]) {
             current = v1[i++];
         }
-        else if (v1[i] > v2[j]) {
+        else if (v2[j] < v1[i]) {
             current = v2[j++];
         }
         else {
@@ -39,8 +39,8 @@ void mergeTwoVectors(const std::vector<std::vector<size_t>>& buf_vector, std::ve
 
 void SearchEngine::search(const std::string& filename) {
 
-	std::vector<std::vector<size_t>> buf_vector;
-	std::vector<size_t> final_vector;
+	std::vector<std::vector<RawResult>> buf_vector;
+	std::vector<RawResult> final_vector;
 	{
 		UnifiedReader reader(filename);
 		auto res1 = searcherExact.search(reader);
@@ -53,12 +53,18 @@ void SearchEngine::search(const std::string& filename) {
 		buf_vector.push_back(std::move(res2));
 	}
 
-	mergeTwoVectors(buf_vector, final_vector);
+    //mergeTwoVectors(buf_vector, final_vector);
+    for (auto& el : buf_vector) {
+        for (auto& res : el) {
+            final_vector.push_back(res);
+        }
+    }
+
 	if (final_vector.size() != 0) {
 		std::cout << "File: " << filename << " === " << final_vector.size() << std::endl;
-		for (auto pos : final_vector) {
+		for (auto& pos : final_vector) {
 			UnifiedReader contexter(filename);
-			std::cout << contexter.loadContext(pos) << std::endl;
+			std::cout << contexter.loadContext(pos.start, pos.end) << std::endl;
 		}
 	}
 

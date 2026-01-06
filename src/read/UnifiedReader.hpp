@@ -41,7 +41,10 @@ public:
     }
 
     size_t getPos() const {
-        return std::visit([](const auto& r) { return r.getPos(); }, reader)- prev_word_size;
+        return std::visit([](const auto& r) { return r.getPos(); }, reader);
+    }
+    size_t getWordSize() const noexcept {
+        return prev_word_size;
     }
     
     bool empty()  {
@@ -96,11 +99,11 @@ public:
         skipSeparators();
         return !empty();
     }
-    string loadContext(long long pos) {
-        long long left = (pos > config.left_context) ? pos - config.left_context : 0ll;
+    string loadContext(long long left_pos, long long right_pos) {
+        long long left = (left_pos > config.left_context) ? left_pos - config.left_context : 0ll;
         
         string context;
-        long long zone_size = config.right_context + pos - left + config.raw_templ.size();//чтобы если left = 0, то не выделять лишнюю память
+        long long zone_size = config.right_context + right_pos - left ;//чтобы если left = 0, то не выделять лишнюю память
         context.reserve(zone_size); 
 
         moveToSymbol(left);

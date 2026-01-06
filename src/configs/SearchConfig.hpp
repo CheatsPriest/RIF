@@ -15,7 +15,7 @@ public:
 	
 	unsigned amount_of_search_threads = start_amount_of_search_threads;
 
-	unsigned int depth = 5;
+	unsigned int depth = 0;
 	bool respect_registers = false;
 	bool full_words = false;
 
@@ -25,7 +25,7 @@ public:
 	std::vector<std::string> initial_folders = { "C://src", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = "огромные деньги";//неотформатированный 
+	string raw_templ = "большие деньги";//неотформатированный 
 	string exact_templ = "";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';

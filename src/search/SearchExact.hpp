@@ -3,6 +3,7 @@
 #include <configs/SearchConfig.hpp>
 #include <vector>
 #include <search/SearchRawResult.hpp>
+#include <iostream>
 /*
 ИНИЦИАЛИЗИРОВАТЬ Состояние = 0
 ПОКА есть символы в файле:
@@ -37,9 +38,9 @@ public:
     SearchExact() : config(SearchConfig::get()), sys_locale("") {
 
     }
-    std::vector<size_t> search(UnifiedReader& reader) {
+    std::vector<RawResult> search(UnifiedReader& reader) {
 
-        std::vector<size_t> result;
+        std::vector<RawResult> result;
         result.reserve(4);
 
         size_t i = 0;
@@ -47,6 +48,7 @@ public:
         const auto& templ = config.exact_templ;
         while (!reader.empty()) {
             const char_t cur = config.respect_registers? reader.readSymbol() : std::tolower(reader.readSymbol(), sys_locale);
+            std::cout << cur << std::endl;
             if (templ[i] == config.joker_symbol) {
                 i++;
                 reader.moveToSymbol(1);
@@ -82,7 +84,7 @@ public:
                 else {
                     std::cout << "Find on: " << reader.getPos() - len << std::endl;
                 }
-                result.push_back( reader.getPos() - len );
+                result.push_back({ reader.getPos() - len, reader.getPos() });
                 i = 0;
             }
         }

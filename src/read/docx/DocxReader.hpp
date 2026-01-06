@@ -24,7 +24,7 @@ private:
         if (!doc.is_open())co_return;
         for (auto p : doc.paragraphs()) {
             for (auto r : p.runs()) {
-                co_yield formatToLocal(r.get_text());
+                co_yield (r.get_text());
             }
         }
     }

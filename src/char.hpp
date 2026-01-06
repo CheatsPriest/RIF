@@ -1,7 +1,11 @@
 #pragma once
 #include <string>
 #include <locale>
-using char_t = char;
+
+
+setlocale(LC_ALL, "ru_RU.UTF-8");
+
+using char_t =  unsigned char;
 using string = std::string;
 using string_view = std::string_view;
 

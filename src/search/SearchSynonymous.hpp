@@ -42,12 +42,12 @@ public:
     SearchSynonymous() :config(SearchConfig::get()), settings(SynonymsSettings::get()), stemmer("russian"){
 
     }
-    std::vector<size_t> search(UnifiedReader& reader) {
+    std::vector<RawResult> search(UnifiedReader& reader) {
         const auto& map = settings.synonyms_per_group;
 
         clearQueues();
 
-        std::vector<size_t> result;
+        std::vector<RawResult> result;
         result.reserve(4);
 
         //то что надо обнулить но не загнать в минус
@@ -67,10 +67,10 @@ public:
             string word = stemmer.stem(reader.readWord());
             walk_id++;
             
-            auto it = map.find(word);
+            auto it = map.find(std::move(word));
 
             if (it != map.end()) {
-                ids_in_file.push(reader.getPos());
+                ids_in_file.push(reader.getPos()-reader.getWordSize());
                 size_t group_id = it->second;
                 syn_in_window.push(group_id);
                 syn_in_walk.push(walk_id);
@@ -81,7 +81,7 @@ public:
                     cascadPop();
                 }
                 if (factor == 0) {
-                    result.push_back(ids_in_file.front());
+                    result.push_back({ ids_in_file.front(), ids_in_file.back()+reader.getWordSize()});
                     //если рассинхрон 2 очередей, то значит алгоритм нетедерминированный
                     while (!ids_in_file.empty()) {
                         cascadPop();
