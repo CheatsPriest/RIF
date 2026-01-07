@@ -34,9 +34,9 @@
 class SearchExact {
 private:
     SearchConfig& config;
-    std::locale sys_locale;
+    Lowercaser lower_case;
 public:
-    SearchExact() : config(SearchConfig::get()), sys_locale("") {
+    SearchExact() : config(SearchConfig::get()) {
 
     }
     std::vector<RawResult> search(UnifiedReader& reader) {
@@ -48,8 +48,9 @@ public:
         size_t len = config.exact_templ.size();
         const auto& templ = config.exact_templ;
         while (!reader.empty()) {
-            const char_t cur = config.respect_registers? reader.readSymbol() : std::tolower(reader.readSymbol(), sys_locale);
-            std::cout << cur << std::endl;
+            const char_t cur = config.respect_registers? reader.readSymbol() : lower_case(reader.readSymbol());
+            
+            //std::cout << cur << std::endl;
             if (templ[i] == config.joker_symbol) {
                 i++;
                 reader.moveToSymbol(1);

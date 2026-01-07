@@ -1,4 +1,4 @@
-#include <search/SearchEngine.hpp>
+﻿#include <search/SearchEngine.hpp>
 
 
 void mergeTwoVectors(const std::vector<std::vector<RawResult>>& buf_vector, std::vector<RawResult>& final_vector) {

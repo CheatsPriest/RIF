@@ -92,7 +92,7 @@ public:
             moveToSymbol(1);
         }
         prev_word_size = res.size();
-        return formatToLocal(std::move(res));
+        return (std::move(res));
     }
 
     // Перейти к следующему слову
@@ -113,6 +113,6 @@ public:
             moveToSymbol(1);
         }
         
-        return formatToLocal(std::move(context));
+        return (std::move(context));
     }
 };

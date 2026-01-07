@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include <configs/SearchConfig.hpp>
-#include <locale>
 #include <format>
 
  
@@ -9,35 +8,24 @@
 class PreRegisters {
 private:
     SearchConfig& config;
-    std::locale sys_locale;
+    Lowercaser to_lowercase;
 
 public:
     PreRegisters()
         : config(SearchConfig::get())
-        , sys_locale("")  // Инициализируем один раз
     {
     }
 
     void preprocess() {
+        config.exact_templ = config.raw_templ;
         if (config.respect_registers) {
-            config.exact_templ = config.raw_templ;
             return;
         }
 
-        config.exact_templ = to_lowercase(config.raw_templ);
+        to_lowercase(config.exact_templ);
     }
 
 private:
-    std::string to_lowercase(const std::string& str) {
-        std::string result;
-        result.reserve(str.size());
-
-        for (char c : str) {
-            result.push_back(std::tolower(c, sys_locale));
-        }
-
-        return result;
-    }
 
     /*std::string to_lowercase_ascii(const std::string& str) {
         std::string result = str;

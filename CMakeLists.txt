@@ -20,8 +20,7 @@ endif()
 # 4. Список файлов (для удобства поддержки)
 add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp" 
 "src/configs/SearchConfig.cpp" "src/global/GlobalQueues.hpp" "src/folders_inspector/FoldersInspector.cpp" "src/global/ThreadSafeQueue.hpp"
-"src/read/BaseReader.hpp" "src/char.hpp" "src/read/mmap/MemoryMapWindows.h" 
-"src/read/mmap/MmapReader.h" "src/read/mmap/MmapReader.cpp" "src/read/ReadersVariants.hpp"
+"src/read/BaseReader.hpp" "src/char.hpp" "src/read/ReadersVariants.hpp"
 "src/read/UnifiedReader.hpp" "src/read/UnifiedReader.cpp"
 "src/search/ThreadSerachPool.hpp" "src/search/SearchExact.hpp"
 "src/core/core.hpp" "src/core/Core.cpp"  "src/search/ThreadSerachPool.cpp"
@@ -30,7 +29,7 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/read/docx/DocxReader.cpp" "src/char.cpp" "src/search/synonymous/Stemmer.hpp" 
 "src/search/synonymous/Stemmer.cpp" "src/preproc/PreSynonyms.hpp" "src/preproc/PreSynonyms.cpp" 
 "src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
-"src/search/SearchEngine.cpp")
+"src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp")
 
 # 6. Подключение инклюдов (Modern CMake использует target_...)
 target_include_directories(RIF PRIVATE 

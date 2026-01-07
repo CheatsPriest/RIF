@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <search/synonymous/Stemmer.hpp>
 
 class StemmerPipeline {
@@ -9,7 +9,7 @@ public:
     StemmerPipeline(std::string_view language) : steammer(language) {
 
     }
-    std::string stem(std::string&& word);
+    string stem(string&& word);
 
     void changeLanguage(std::string_view language);
 

@@ -1,4 +1,4 @@
-#include <core/Core.hpp>
+﻿#include <core/Core.hpp>
 
 void Core::startFoldersWalking() {
 	 inspectorPool_ptr = std::make_unique<std::jthread>([]() {
@@ -13,7 +13,7 @@ void Core::startSearchPool() {
 
 void Core::startSeacrhing() {
 	preprocessor.run();
-	std::cout << config.raw_templ << " | " << config.exact_templ << std::endl;
+	//std::cout << config.raw_templ << " | " << config.exact_templ << std::endl;
 	config.process_search.store(true, std::memory_order_release);
 	startFoldersWalking();
 }

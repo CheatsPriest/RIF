@@ -1,11 +1,11 @@
-#include <search/synonymous/Stemmer.hpp>
+﻿#include <search/synonymous/Stemmer.hpp>
 
 
 std::string Stemmer::stem(std::string&& word_cp1251) {
     if (!stemmer_ptr || word_cp1251.empty()) return word_cp1251;
 
 
-    std::string word_utf8 = formatFromLocal(std::move(word_cp1251));
+    std::string word_utf8 = (std::move(word_cp1251));
 
 
     const unsigned char* result = sb_stemmer_stem(
@@ -16,7 +16,7 @@ std::string Stemmer::stem(std::string&& word_cp1251) {
 
     if (result) {
         std::string result_utf8(reinterpret_cast<const char*>(result));
-        return formatToLocal(std::move(result_utf8));
+        return (std::move(result_utf8));
     }
 
     return word_utf8;

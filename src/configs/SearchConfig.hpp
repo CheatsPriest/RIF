@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 #include <char.hpp>
+#include <unicode/uchar.h>
 
 constexpr static unsigned start_amount_of_search_threads = 1;
 
@@ -25,8 +26,8 @@ public:
 	std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = "большие деньги";//неотформатированный 
-	string exact_templ = "";//отформатированный, например если игнорить регистр, то понижаем
+	string raw_templ = u"большие деньги";//неотформатированный 
+	string exact_templ = u"";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';
 	char_t substring_symbol = '?';
@@ -36,8 +37,8 @@ public:
 
 	std::unordered_set<char_t> separators = { '.', ',', '!', '?', ';', ':', '(', ')',
 					'[', ']', '{', '}', '"', '\'', '-', '_',
-					//'«', '»', '„', '“', '”', '‘', '’', '—',
-					//'…', '¿', '¡', '‹', '›', '„', '‟', '~',
+					u'«', u'»', u'„', u'“', u'”', u'‘', u'’', u'—',
+					u'…', u'¿', u'¡', u'‹', u'›', u'„', u'‟', '~',
 					'@', '#', '$', '%', '^', '&', '*', '+',
 					'=', '|', '\\', '/', '<', '>', '+', '-', '*'};
 
@@ -84,8 +85,8 @@ struct SynonymsSettings {
 
 	// Стоп-слова для пропуска
 	std::unordered_set<string> skip_words = {
-		"в", "на", "за", "под", "над", "и", "или", "но",
-		"с", "по", "о", "от", "до", "из", "у", "без"
+		u"в", u"на", u"за", u"под", u"над", u"и", u"или", u"но",
+		u"с", u"по", u"о", u"от", u"до", u"из", u"у", u"без"
 	};
 	bool isSkipabble(const string& word) {
 		return skip_words.contains(word);
@@ -111,7 +112,8 @@ private:
 
 };
 
-static bool is_separator(char_t c)  noexcept {
-	if (std::isspace(static_cast<unsigned char>(c))) return true;
+static bool is_separator(char_t c) noexcept {
+	// Используем ICU для проверки пробельных символов Unicode
+	if (u_isUWhiteSpace(static_cast<UChar32>(c))) return true;
 	return SearchConfig::get().separators.contains(c);
 }

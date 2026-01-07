@@ -1,4 +1,4 @@
-#include <preproc/PreSynonyms.hpp>
+Ôªø#include <preproc/PreSynonyms.hpp>
 #include <search/synonymous/StemmerPipeline.hpp>
 #include <configs/SearchConfig.hpp>
 
@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <sstream>
 #include <fstream>
+#include <read/UnifiedReader.hpp>
 
 
 namespace fs = std::filesystem;
@@ -27,7 +28,7 @@ public:
     void operator()() {
         factor = 0;
         settings.words_from_template.clear();
-        string cur = "";
+        string cur = u"";
 
         for (auto c : search_config.raw_templ) {
             if (is_separator(c) and !cur.empty()) {
@@ -52,132 +53,120 @@ public:
 
 };
 
-struct group_info {
-    long long count;
-    size_t future_id;
-};
-
 class SynonymsReader {
     SynonymsSettings& settings;
+    StemmerPipeline stem;
+
+    struct group_info {
+        long long count;
+        size_t future_id;
+    };
+
     std::unordered_map<size_t, group_info> temp_groups;
     size_t free_group_id;
+
 public:
-    SynonymsReader() : settings(SynonymsSettings::get()) {}
+    SynonymsReader() : settings(SynonymsSettings::get()), stem("russian") {}
 
     void operator()(const std::string& folder_path = "C:\\testFlood\\synonyms") {
-        read_from_folder(folder_path);
-        settings.words_from_template.clear();
-        settings.max_group_id = free_group_id;
+        free_group_id = 0;
+        if (read_from_folder(folder_path)) {
+            settings.words_from_template.clear();
+            settings.max_group_id = free_group_id;
+        }
     }
-
-    
 
 private:
     bool read_from_folder(const std::string& folder_path) {
         namespace fs = std::filesystem;
-        free_group_id = 0;
+        if (!fs::exists(folder_path)) return false;
 
-        /*if (!fs::exists(folder_path)) {
-            std::cout << "œ‡ÔÍ‡ " << folder_path << " ÌÂ Ì‡È‰ÂÌ‡!" << std::endl;
-            return false;
-        }*/
-
-        // œÓıÓ‰ËÏ ÔÓ ‚ÒÂÏ ˇÁ˚ÍÓ‚˚Ï Ô‡ÔÍ‡Ï
         for (const auto& lang_dir : fs::directory_iterator(folder_path)) {
             if (!fs::is_directory(lang_dir)) continue;
 
-            std::string language = lang_dir.path().filename().string();
-
-            stem.changeLanguage(language);
+            stem.changeLanguage(lang_dir.path().filename().string());
 
             for (const auto& file : fs::directory_iterator(lang_dir.path())) {
                 if (file.path().extension() != ".txt") continue;
 
-                std::ifstream fin(file.path());
-                if (!fin.is_open()) {
-                    std::cerr << "ÕÂ Û‰‡ÎÓÒ¸ ÓÚÍ˚Ú¸: " << file.path() << std::endl;
-                    continue;
+                // –ü–µ—Ä–≤—ã–π –ø—Ä–æ—Ö–æ–¥: —Å—á–∏—Ç–∞–µ–º —á–∞—Å—Ç–æ—Ç—ã –∏ —Å–æ–∑–¥–∞–µ–º ID –≥—Ä—É–ø–ø
+                {
+                    UnifiedReader reader(file.path().string());
+                    form_groups(reader);
                 }
 
-                form_groups(fin);
-                fin.close();
-
-                std::ifstream fina(file.path());
-                if (!fina.is_open()) {
-                    std::cerr << "ÕÂ Û‰‡ÎÓÒ¸ ÓÚÍ˚Ú¸: " << file.path() << std::endl;
-                    continue;
+                // –í—Ç–æ—Ä–æ–π –ø—Ä–æ—Ö–æ–¥: –∑–∞–ø–æ–ª–Ω—è–µ–º –∫–∞—Ä—Ç—É —Å–∏–Ω–æ–Ω–∏–º–æ–≤
+                {
+                    UnifiedReader reader(file.path().string());
+                    processGroups(reader);
                 }
-                processGroups(fina);
-                fina.close();
-
-
             }
         }
-
         return true;
     }
 
-    void form_groups(std::istream& input) {
-        std::string line;
-        temp_groups.clear();
-
-        while (std::getline(input, line)) {
-            std::istringstream iss(line);
-            size_t group_id;
-            std::string word;
-
-            if (iss >> group_id) {
-                std::getline(iss >> std::ws, word);
-                word = stem.stem(formatToLocal(std::move(word)));
-                auto it = settings.words_from_template.find(std::move(word));
-                if (it != settings.words_from_template.end()) {
-                    //—ÍÓÎ¸ÍÓ ‡Á ÒÎÓ‚‡ ËÁ ˝ÚÓÈ „ÛÔÔ˚ ‰ÓÎÊÌ˚ ‚ÒÚÂÚËÚ¸Òˇ
-                    auto it_g = temp_groups.find(group_id);
-                    if (it_g != temp_groups.end()) {
-                        temp_groups[group_id].count+= it->second;
-                    }
-                    else {
-                        temp_groups.insert({ group_id, {it->second , free_group_id++} });
-                    }
-                }
-            }
+    // –í—Å–ø–æ–º–æ–≥–∞—Ç–µ–ª—å–Ω–∞—è —Ñ—É–Ω–∫—Ü–∏—è –¥–ª—è —á—Ç–µ–Ω–∏—è ID (—Ç–∞–∫ –∫–∞–∫ UnifiedReader —á–∏—Ç–∞–µ—Ç —Å–ª–æ–≤–∞)
+    size_t parseId(const string& word) {
+        if (word.empty()) return 0;
+        try {
+            // –ö–æ–Ω–≤–µ—Ä—Ç–∏—Ä—É–µ–º UTF-16 –æ–±—Ä–∞—Ç–Ω–æ –≤ UTF-8 –¥–ª—è std::stoull
+            std::string s;
+            icu::UnicodeString(reinterpret_cast<const UChar*>(word.data()), word.size()).toUTF8String(s);
+            return std::stoull(s);
         }
-
+        catch (...) { return 0; }
     }
-    void processGroups(std::istream& input){
-        std::string line;
-        // ¬“Œ–Œ… œ–Œ’Œƒ: ÒÓÁ‰‡∏Ï Ì‡·Ó˚ ÒËÌÓÌËÏÓ‚
-        while (std::getline(input, line)) {
-            std::istringstream iss(line);
-            size_t group_id;
-            std::string word;
 
-            if (iss >> group_id) {
-                std::getline(iss >> std::ws, word);
-                word = formatToLocal(std::move(word));
+    void form_groups(UnifiedReader& reader) {
+        while (!reader.empty()) {
+            string id_str = reader.readWord();
+            if (id_str.empty()) break;
 
-                auto it = temp_groups.find(group_id);
-                if (it != temp_groups.end()) {
-                    settings.synonyms_per_group.insert({ stem.stem(std::move(word)), it->second.future_id });
+            size_t group_id = parseId(id_str);
+            string word = reader.readWord();
+            if (word.empty()) continue;
+
+            word = stem.stem(std::move(word));
+
+            auto it = settings.words_from_template.find(word);
+            if (it != settings.words_from_template.end()) {
+                auto& g_info = temp_groups[group_id];
+                if (g_info.count == 0 && g_info.future_id == 0) {
+                    // –ù–æ–≤–∞—è –≥—Ä—É–ø–ø–∞
+                    g_info = { it->second, free_group_id++ };
                 }
-
+                else {
+                    g_info.count += it->second;
+                }
             }
         }
+    }
+
+    void processGroups(UnifiedReader& reader) {
+        while (!reader.empty()) {
+            string id_str = reader.readWord();
+            if (id_str.empty()) break;
+
+            size_t group_id = parseId(id_str);
+            string word = reader.readWord();
+            if (word.empty()) continue;
+
+            auto it = temp_groups.find(group_id);
+            if (it != temp_groups.end()) {
+                settings.synonyms_per_group.insert({
+                    stem.stem(std::move(word)),
+                    it->second.future_id
+                    });
+            }
+        }
+
+        // –°–∏–Ω—Ö—Ä–æ–Ω–∏–∑–∞—Ü–∏—è –≤–µ–∫—Ç–æ—Ä–∞ —á–∞—Å—Ç–æ—Ç
         settings.groupId_count_read_only.resize(free_group_id);
-        for (auto& [old_id, info] : temp_groups) {
+        for (auto const& [old_id, info] : temp_groups) {
             settings.groupId_count_read_only[info.future_id] = info.count;
         }
-
         temp_groups.clear();
     }
-};
-
-class SynonymsLoader {
-private:
-	
-
-public:
-
 };
 
 void PreSynonyms::run() {

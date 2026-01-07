@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 #include <variant>
-#include <read/mmap/MmapReader.h>
+#include <read/binary/BinaryReader.hpp>
 #include <read/docx/DocxReader.hpp>
 
-using reader_v = std::variant<MmapReader, DocxReader>;
+using reader_v = std::variant<BinaryReader, DocxReader>;
