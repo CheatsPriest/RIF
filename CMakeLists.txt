@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # 2. Поиск зависимостей (через vcpkg тулчейн)
 find_package(ICU REQUIRED COMPONENTS uc i18n)
 find_package(Boost REQUIRED) 
+find_package(imgui CONFIG REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 
 # 3. Политики и настройки компилятора
 if(MSVC)
@@ -18,6 +20,7 @@ if(MSVC)
 endif()
 
 # 4. Список файлов (для удобства поддержки)
+find_path(IMGUI_BACKENDS_DIR NAMES imgui_impl_glfw.cpp PATH_SUFFIXES backends imgui/backends)
 add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp" 
 "src/configs/SearchConfig.cpp" "src/global/GlobalQueues.hpp" "src/folders_inspector/FoldersInspector.cpp" "src/global/ThreadSafeQueue.hpp"
 "src/read/BaseReader.hpp" "src/char.hpp" "src/read/ReadersVariants.hpp"
@@ -29,12 +32,18 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/read/docx/DocxReader.cpp" "src/char.cpp" "src/search/synonymous/Stemmer.hpp" 
 "src/search/synonymous/Stemmer.cpp" "src/preproc/PreSynonyms.hpp" "src/preproc/PreSynonyms.cpp" 
 "src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
-"src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp")
+"src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp" 
+"src/ImGui/Window.hpp" "src/ImGui/Window.cpp"
+)
 
 # 6. Подключение инклюдов (Modern CMake использует target_...)
+find_path(IMGUI_INCLUDE_DIR NAMES imgui.h)
+
 target_include_directories(RIF PRIVATE 
     src 
     ${Boost_INCLUDE_DIRS}
+    ${IMGUI_INCLUDE_DIR}           # Путь к imgui.h
+    ${IMGUI_INCLUDE_DIR}/backends  # Путь к бэкендам (чтобы работало #include "imgui_impl_glfw.h")
 )
 
 # 7. Конфигурация DuckX (DOCX)
@@ -72,4 +81,7 @@ target_link_libraries(RIF PRIVATE
     ICU::uc 
     ICU::i18n
     Boost::boost
+    imgui::imgui
+    glfw             # <--- Попробуйте сначала так
+    opengl32
 )

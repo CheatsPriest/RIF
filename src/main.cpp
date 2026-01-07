@@ -15,7 +15,7 @@
 #include <unicode/unistr.h>
 #include <windows.h>
 
-
+#include <ImGui/Window.hpp>
 
 int main() {
 
@@ -24,6 +24,48 @@ int main() {
     std::setvbuf(stdout, nullptr, _IOFBF, 1000); // Чтобы вывод не тормозил
 #endif
 
+    try {
+        // 1. Создаем объект окна
+        Window app(1280, 720, "ImGui Window");
+
+        // Данные для демонстрации в интерфейсе
+        float color[3] = { 0.1f, 0.1f, 0.1f };
+        int counter = 0;
+
+        // 2. Главный цикл приложения
+        while (!app.shouldClose()) {
+            // Начало кадра (обработка событий и подготовка ImGui)
+            app.newFrame();
+
+            // --- Здесь пишем код интерфейса ImGui ---
+
+            // Создаем простое окно ImGui
+            ImGui::Begin("Управление");
+
+            ImGui::Text("Привет! Это твое окно на OpenGL + ImGui.");
+            ImGui::ColorEdit3("Цвет фона", color); // Слайдер цвета
+
+            if (ImGui::Button("Нажми меня")) {
+                counter++;
+            }
+            ImGui::SameLine();
+            ImGui::Text("Счетчик: %d", counter);
+
+            ImGui::Separator();
+            ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+
+            ImGui::End();
+            // ---------------------------------------
+
+            // Конец кадра (рендер и вывод на экран)
+            app.endFrame();
+        }
+    }
+    catch (const std::exception& e) {
+        // Обработка ошибок инициализации
+        printf("Ошибка: %s\n", e.what());
+        return -1;
+    }
     //std::string path = "C:\\src\\ANSI_2051.txt"; // Укажите свой путь
     //std::u16string content = readAnyFileToUTF16(path);
 
@@ -59,7 +101,7 @@ int main() {
     //    std::cout << "прием" << " -> " << stemmer.stem("пРием") << std::endl;
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
-    auto& cfg = SearchConfig::get();
+    /*auto& cfg = SearchConfig::get();
     auto& stats = SearchStats::get();
     cfg.raw_templ = u"большие деньги";
     Core core;
@@ -82,7 +124,7 @@ int main() {
     cfg.raw_templ = u"деньги";
     core.startSeacrhing();
     
-    std::cin >> prob;
+    std::cin >> prob;*/
     /*duckx::Document doc("C://src/12.docx");
 
     doc.open();
