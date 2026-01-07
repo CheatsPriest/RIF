@@ -60,7 +60,7 @@ int main() {
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
     auto& cfg = SearchConfig::get();
-    
+    auto& stats = SearchStats::get();
     cfg.raw_templ = u"большие деньги";
     Core core;
     int prob;
@@ -71,15 +71,18 @@ int main() {
     
     core.startSeacrhing();
 
+    
+    
 
-    //cfg.raw_templ = "деньги";
-    //core.startSeacrhing();
+    while (stats.process_search);
 
+    std::cout << "Completed Search" << std::endl;
     std::cin >> prob;
 
-
+    cfg.raw_templ = u"деньги";
+    core.startSeacrhing();
     
-    
+    std::cin >> prob;
     /*duckx::Document doc("C://src/12.docx");
 
     doc.open();

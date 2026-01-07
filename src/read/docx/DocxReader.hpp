@@ -7,8 +7,12 @@
 
 #include <unicode/unistr.h>
 
+
+
 class DocxReader : public BaseReader<DocxReader> {
 private:
+    static constexpr char_t next_line_symbol = u'\n';
+
     std::string filename; // Путь к файлу остается в UTF-8
     std::generator<std::string> gen_obj; // DuckX отдает UTF-8
     using gen_iterator = decltype(gen_obj.begin());
@@ -48,7 +52,7 @@ public:
         if (curIter != gen_obj.end()) {
             // Конвертируем первый кусок текста в UTF-16
             curText = to_utf16(*curIter);
-            curText += u' '; // Используем префикс u для char16_t
+            curText += next_line_symbol; // Используем префикс u для char16_t
             curMaxLen = curText.size();
         }
     }
@@ -70,7 +74,7 @@ public:
             if (curIter != gen_obj.end()) {
                 curLen -= curMaxLen;
                 curText = to_utf16(*curIter);
-                curText += u' ';
+                curText += next_line_symbol;
                 curMaxLen = curText.size();
 
             }

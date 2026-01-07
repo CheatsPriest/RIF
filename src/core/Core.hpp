@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 #include <search/ThreadSerachPool.hpp>
@@ -12,11 +12,11 @@ private:
 	std::unique_ptr<ThreadSearchPool> searchPool_ptr;
 	std::unique_ptr<std::jthread> inspectorPool_ptr;
 	SearchConfig& config;
-
+	SearchStats& stats;
 	void startFoldersWalking();
 	void startSearchPool();
 public:
-	Core() : config(SearchConfig::get()), searchPool_ptr(nullptr), inspectorPool_ptr(nullptr){
+	Core() : config(SearchConfig::get()), stats(SearchStats::get()), searchPool_ptr(nullptr), inspectorPool_ptr(nullptr) {
 		startSearchPool();
 	}
 	

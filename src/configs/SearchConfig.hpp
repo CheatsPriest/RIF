@@ -42,8 +42,7 @@ public:
 					'@', '#', '$', '%', '^', '&', '*', '+',
 					'=', '|', '\\', '/', '<', '>', '+', '-', '*'};
 
-	std::atomic<bool> process_search = { true };
-	std::atomic<bool> work = { true };
+	
 
 
 	
@@ -117,3 +116,42 @@ static bool is_separator(char_t c) noexcept {
 	if (u_isUWhiteSpace(static_cast<UChar32>(c))) return true;
 	return SearchConfig::get().separators.contains(c);
 }
+
+struct SearchStats {
+public:
+
+	std::atomic<bool> process_search = { true };
+	std::atomic<bool> work = { true };
+
+	std::atomic<bool> is_inspecting_folders{ false };
+	std::atomic<long long> files_to_process{ 0 };
+	std::atomic<long long> files_processed{ 0 };
+
+	static SearchStats& get() {
+		static SearchStats instance;
+		return instance;
+	}
+	void reset() {
+		is_inspecting_folders = false;
+		files_to_process = 0;
+		files_processed = 0;
+	}
+	void checkStatus() {
+		// 1. Читаем атомики
+		bool inspecting = is_inspecting_folders.load(std::memory_order_acquire);
+		long long to_do = files_to_process.load(std::memory_order_acquire);
+		long long done = files_processed.load(std::memory_order_acquire);
+
+		// 2. Вердикт: Поиск закончен ТОЛЬКО если инспектор ушел И счетчики сошлись
+		if (!inspecting and to_do == done) {
+			process_search.store(false, std::memory_order_release);
+		}
+	}
+private:
+	SearchStats() = default;
+	~SearchStats() = default;
+	SearchStats(const SearchStats&) = delete;
+	SearchStats& operator=(const SearchStats&) = delete;
+	SearchStats(SearchStats&&) = delete;
+	SearchStats& operator=(SearchStats&&) = delete;
+};

@@ -170,6 +170,7 @@ private:
 };
 
 void PreSynonyms::run() {
+    SynonymsSettings::get().flushDown();
     if (!SynonymsSettings::get().use_synonyms)return;
     ProcessWordsFromTemplateForSynonyms pr;
     pr();

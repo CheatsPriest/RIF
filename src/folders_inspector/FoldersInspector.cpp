@@ -34,11 +34,15 @@ struct info {
 
 struct FoldersInspector::Impl {
     SearchConfig& config;
-
+    SearchStats& stats;
     void walk() {
 
+        stats.is_inspecting_folders.store(true,std::memory_order::release);
+        stats.reset();
         clearFolders();
         memory.clear();
+
+        
 
         // Добавляем начальные папки
         for (const auto& folder : config.initial_folders) {
@@ -47,17 +51,19 @@ struct FoldersInspector::Impl {
             }
         }
 
-        while (!folders.empty() and config.process_search.load(std::memory_order_acquire)) {
+        while (!folders.empty() and stats.process_search.load(std::memory_order_acquire)) {
             info current = folders.front();
             folders.pop();
 
             processFolder(current.folder, current.cur_depth);
         }
 
+        stats.is_inspecting_folders.store(false, std::memory_order::release);
         std::cout << "\nОбход завершён.\n";
+        stats.checkStatus();
     }
 
-    Impl() : config(SearchConfig::get()) {
+    Impl() : config(SearchConfig::get()), stats(SearchStats::get()) {
 
     }
 
@@ -69,6 +75,7 @@ private:
         if (!isExtensionAllowed(file))return;
         if (memory.testAndRemember(file)) {
             std::cout << "To process: " << file << std::endl;
+            stats.files_to_process.fetch_add(1, std::memory_order_release);
             FilesQueues::get().push(std::move(file));
         }
     }
@@ -86,7 +93,7 @@ private:
     bool processFolder(const std::string& folder_path, unsigned current_depth) {
         try {
             for (const auto& entry : fs::directory_iterator(folder_path)) {
-                if (!config.process_search.load(std::memory_order_acquire)) {
+                if (!stats.process_search.load(std::memory_order_acquire)) {
                     return false; 
                 }
 
