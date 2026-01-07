@@ -34,6 +34,17 @@ void Window::initImGui() {
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
+
+    std::string fontPath = std::string(PROJECT_PATH) + "/assets/fonts/NotoSans-Medium.ttf";
+   
+    ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
+
+    if (font == nullptr) {
+        // Если шрифт не найден, ImGui по умолчанию использует встроенный (без кириллицы)
+        // Можно вывести предупреждение в консоль
+        printf("Warning: Font %s not found!\n", fontPath);
+    }
+
     // Инициализация бэкендов
     ImGui_ImplGlfw_InitForOpenGL(m_window, true);
     ImGui_ImplOpenGL3_Init("#version 130"); // Стандартный шейдерный язык

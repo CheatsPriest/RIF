@@ -16,6 +16,7 @@
 #include <windows.h>
 
 #include <ImGui/Window.hpp>
+#include <nfd.hpp>
 
 int main() {
 
@@ -25,13 +26,13 @@ int main() {
 #endif
 
     try {
-        // 1. Создаем объект окна
+
         Window app(1280, 720, "ImGui Window");
 
         // Данные для демонстрации в интерфейсе
         float color[3] = { 0.1f, 0.1f, 0.1f };
         int counter = 0;
-
+        NFD_Init();
         // 2. Главный цикл приложения
         while (!app.shouldClose()) {
             // Начало кадра (обработка событий и подготовка ImGui)
@@ -54,6 +55,25 @@ int main() {
             ImGui::Separator();
             ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
 
+
+            if (ImGui::Button("Выбрать папку")) {
+                NFD::UniquePath outPath;
+
+                // Вызов диалога выбора папки
+                nfdresult_t result = NFD::PickFolder(outPath);
+
+                if (result == NFD_OKAY) {
+                    std::cout << "Выбрана папка: " << outPath.get() << std::endl;
+                    // Сохраните путь в свою переменную
+                }
+                else if (result == NFD_CANCEL) {
+                    std::cout << "Выбор отменен" << std::endl;
+                }
+                else {
+                    std::cout << "Ошибка: " << NFD::GetError() << std::endl;
+                }
+            }
+
             ImGui::End();
             // ---------------------------------------
 
@@ -66,6 +86,7 @@ int main() {
         printf("Ошибка: %s\n", e.what());
         return -1;
     }
+    NFD_Quit();
     //std::string path = "C:\\src\\ANSI_2051.txt"; // Укажите свой путь
     //std::u16string content = readAnyFileToUTF16(path);
 

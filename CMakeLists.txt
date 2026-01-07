@@ -10,6 +10,7 @@ find_package(ICU REQUIRED COMPONENTS uc i18n)
 find_package(Boost REQUIRED) 
 find_package(imgui CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
+find_package(nfd CONFIG REQUIRED)
 
 # 3. Политики и настройки компилятора
 if(MSVC)
@@ -34,6 +35,10 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
 "src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp" 
 "src/ImGui/Window.hpp" "src/ImGui/Window.cpp"
+ "src/ImGui/ui/MainUi.hpp")
+
+target_compile_definitions(RIF PRIVATE 
+    PROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 # 6. Подключение инклюдов (Modern CMake использует target_...)
@@ -82,6 +87,7 @@ target_link_libraries(RIF PRIVATE
     ICU::i18n
     Boost::boost
     imgui::imgui
-    glfw             # <--- Попробуйте сначала так
+    glfw             
     opengl32
+    nfd::nfd
 )
