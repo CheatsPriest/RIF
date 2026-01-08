@@ -22,82 +22,50 @@ private:
     static string to_utf16(const std::string& utf8_str) {
         return icu::UnicodeString::fromUTF8(utf8_str).getTerminatedBuffer();
     }
-
+    bool has_text;
     std::generator<std::string> create_walker() {
         duckx::Document doc(filename);
         doc.open();
-        if (!doc.is_open()) co_return; // DuckX может кинуть исключение или вернуть false
+        if (!doc.is_open()) co_return;
+        std::string buffer;
+        buffer.reserve(CHUNK_SIZE + 1024);
 
         for (auto p : doc.paragraphs()) {
             for (auto r : p.runs()) {
-                co_yield (r.get_text());
+                buffer += r.get_text();
+            }
+            buffer += '\n';
+            if (buffer.size() >= CHUNK_SIZE) {
+                co_yield std::move(buffer);
+                buffer.clear();
+                buffer.reserve(CHUNK_SIZE + 1024);
             }
         }
+        if (!buffer.empty()) {
+            co_yield std::move(buffer);
+        }
+        has_text = false;
     }
 
-    string curText; // Теперь это std::u16string
-    long long curLen;
-    long long curMaxLen;
-    size_t position;
+    
 
 public:
     DocxReader(const std::string& filename)
         : filename(filename),
         gen_obj(create_walker()),
-        curIter(gen_obj.begin()),
-        curLen(0),
-        curMaxLen(0),
-        position(0)
+        curIter(gen_obj.begin())
     {
-        if (curIter != gen_obj.end()) {
-            // Конвертируем первый кусок текста в UTF-16
-            curText = to_utf16(*curIter);
-            curText += next_line_symbol; // Используем префикс u для char16_t
-            curMaxLen = curText.size();
-        }
+        has_text = (curIter != gen_obj.end());
     }
+    bool readNextChunkImpl(string& chunk) {
 
-    // Возвращает char16_t
-    const char_t readSymbolImpl() const {
-        if (curLen < curMaxLen) {
-            return curText[curLen];
-        }
-        return u'\0';
-    }
+        if (curIter == gen_obj.end() or !has_text) return false;
+        chunk.clear();
+        chunk = to_utf16(*curIter);
 
-    bool moveToSymbolImpl(long long dif) {
-        position += dif;
-        curLen += dif;
+        ++curIter;
 
-        while (curLen >= curMaxLen) {
-            ++curIter;
-            if (curIter != gen_obj.end()) {
-                curLen -= curMaxLen;
-                curText = to_utf16(*curIter);
-                curText += next_line_symbol;
-                curMaxLen = curText.size();
-
-            }
-            else {
-                curMaxLen = 0;
-                curLen = 0;
-                return false;
-            }
-        }
         return true;
     }
-
-    bool emptyImpl() const {
-        return curIter == gen_obj.end();
-    }
-
-    void restartImpl() {
-        gen_obj = create_walker();
-        curIter = gen_obj.begin();
-        position = 0;
-    }
-
-    size_t getPosImpl() const {
-        return position;
-    }
+    
 };

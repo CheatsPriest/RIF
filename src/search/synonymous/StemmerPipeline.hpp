@@ -10,7 +10,7 @@ public:
 
     }
     string stem(string&& word);
-
+    string stem(string_view word_v);
     void changeLanguage(std::string_view language);
 
     ~StemmerPipeline() = default;

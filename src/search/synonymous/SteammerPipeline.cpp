@@ -7,6 +7,7 @@ void StemmerPipeline::changeLanguage(std::string_view language) {
 }
 
 string StemmerPipeline::stem(string&& word) {
+    if (word.size() <= 3)return word;
     // 1. Приводим к нижнему регистру (уже в UTF-16 через ICU)
     lower_case(word);
 
@@ -20,4 +21,9 @@ string StemmerPipeline::stem(string&& word) {
 
     // 4. Конвертируем результат обратно в UTF-16
     return icu::UnicodeString::fromUTF8(stemmed_utf8).getTerminatedBuffer();
+}
+
+string StemmerPipeline::stem(string_view word_v)
+{
+    return stem(string(word_v));
 }

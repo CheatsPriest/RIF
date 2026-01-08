@@ -23,7 +23,8 @@ public:
 
 	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx"};
 
-	std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
+	//std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
+	std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest\txt)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
 	string raw_templ = u"большие деньги";//неотформатированный 
@@ -80,7 +81,7 @@ struct SynonymsSettings {
 	long long target_amount;
 	size_t max_group_id;
 	std::vector<long long> groupId_count_read_only;
-	std::unordered_map<string, size_t> synonyms_per_group;
+	std::unordered_map<string, size_t, std::hash<string_view>, std::equal_to<>> synonyms_per_group;
 
 	// Стоп-слова для пропуска
 	std::unordered_set<string> skip_words = {

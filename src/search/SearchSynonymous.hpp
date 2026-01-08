@@ -5,7 +5,7 @@
 #include <search/SearchRawResult.hpp>
 #include <queue>
 #include <search/synonymous/StemmerPipeline.hpp>
-
+#include <search/caching/LRUSteamming.hpp>
  
 class SearchSynonymous {
 private:

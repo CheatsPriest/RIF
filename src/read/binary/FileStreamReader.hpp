@@ -6,25 +6,25 @@
 #include <vector>
 #include <unicode/ucsdet.h>
 #include <unicode/ucnv.h>
+#include <read/BaseReader.hpp>
 
-class FileStreamReader {
+class FileStreamReader : public BaseReader<FileStreamReader> {
 private:
-    std::ifstream file;
+    std::unique_ptr<std::ifstream> file_ptr;
     UConverter* converter = nullptr;
     std::vector<char> inBuffer;
     string outBuffer;
 
-    static constexpr size_t CHUNK_SIZE = 65536; // 64КБ для оптимального кэша
-
 public:
     FileStreamReader(const std::string& path) : inBuffer(CHUNK_SIZE) {
-        file.open(path, std::ios::binary);
-        if (!file.is_open()) return;
+        file_ptr = std::make_unique< std::ifstream>();
+        file_ptr->open(path, std::ios::binary);
+        if (!file_ptr->is_open()) return;
 
         // 1. Детектируем кодировку
         UErrorCode status = U_ZERO_ERROR;
-        file.read(inBuffer.data(), CHUNK_SIZE);
-        int32_t bytesRead = static_cast<int32_t>(file.gcount());
+        file_ptr->read(inBuffer.data(), CHUNK_SIZE);
+        int32_t bytesRead = static_cast<int32_t>(file_ptr->gcount());
 
         UCharsetDetector* csd = ucsdet_open(&status);
         ucsdet_setText(csd, inBuffer.data(), bytesRead, &status);
@@ -38,16 +38,16 @@ public:
         ucsdet_close(csd);
 
         // --- КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ ---
-        file.clear(); // Сбрасываем флаги ошибок (включая EOF), если файл был меньше 64КБ
-        file.seekg(0, std::ios::beg); // Теперь seekg сработает корректно
+        file_ptr->clear(); // Сбрасываем флаги ошибок (включая EOF), если файл был меньше 64КБ
+        file_ptr->seekg(0, std::ios::beg); // Теперь seekg сработает корректно
     }
 
     // Основная функция: читает следующий кусок и возвращает его в UTF-16
-    bool readNextChunk(string& chunk) {
-        if (!file.is_open() || file.eof()) return false;
+    bool readNextChunkImpl(string& chunk) {
+        if (!file_ptr->is_open() || file_ptr->eof()) return false;
 
-        file.read(inBuffer.data(), CHUNK_SIZE);
-        int32_t bytesRead = static_cast<int32_t>(file.gcount());
+        file_ptr->read(inBuffer.data(), CHUNK_SIZE);
+        int32_t bytesRead = static_cast<int32_t>(file_ptr->gcount());
         if (bytesRead <= 0) return false;
 
         UErrorCode status = U_ZERO_ERROR;
@@ -62,13 +62,33 @@ public:
 
         // Конвертируем. ICU сам сохранит "огрызки" символов в объекте converter
         ucnv_toUnicode(converter, &target, targetLimit,
-            &source, sourceLimit, nullptr, file.eof(), &status);
+            &source, sourceLimit, nullptr, file_ptr->eof(), &status);
 
         // Подрезаем строку под реальный размер
         chunk.resize(target - reinterpret_cast<UChar*>(chunk.data()));
         return true;
     }
+    FileStreamReader(FileStreamReader&& other) noexcept
+        : file_ptr(std::move(other.file_ptr)),
+        converter(other.converter),
+        inBuffer(std::move(other.inBuffer)),
+        outBuffer(std::move(other.outBuffer))
+    {
+        other.converter = nullptr; // КРИТИЧНО: зануляем, чтобы деструктор не убил конвертер
+    }
 
+    // Также нужно перемещающее присваивание
+    FileStreamReader& operator=(FileStreamReader&& other) noexcept {
+        if (this != &other) {
+            if (converter) ucnv_close(converter);
+            file_ptr = std::move(other.file_ptr);
+            converter = other.converter;
+            inBuffer = std::move(other.inBuffer);
+            outBuffer = std::move(other.outBuffer);
+            other.converter = nullptr;
+        }
+        return *this;
+    }
     ~FileStreamReader() {
         if (converter) ucnv_close(converter);
     }

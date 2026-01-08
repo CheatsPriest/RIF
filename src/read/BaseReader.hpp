@@ -2,38 +2,16 @@
 
 #include "char.hpp"
 
+// 64КБ для оптимального кэша
+static constexpr size_t CHUNK_SIZE = 524288;
 
 template<typename Derived>
 class BaseReader {
 public:
-	//Просто вернуть текущий символ
-	const char_t readSymbol() inline const  {
-		const Derived& self = static_cast<const Derived&>(*this);
-		return self.readSymbolImpl();
-	}
-	//Подвинуться вперед или назад
-	bool moveToSymbol(long long dif) {
+
+	bool readNextChunk(string& chunk) {
 		Derived& self = static_cast<Derived&>(*this);
-		return self.moveToSymbolImpl(dif);
-	}
-	// БЕСПОЛЕЗНО Дать длину файла
-	/*size_t size() const {
-		const Derived& self = static_cast<const Derived&>(*this);
-		return self.sizeImpl();
-	}*/
-	// ПОЛЕЗНО, НО ТРЕБУЕТ ПЕРЕРАБОТКУ ДЛЯ DOCX и PDF
-	size_t getPos() const {
-		const Derived& self = static_cast<const Derived&>(*this);
-		return self.getPosImpl();
-	}
-	// ПОЛЕЗНО Проверить кончился ли файл
-	bool empty() const {
-		const Derived& self = static_cast<const Derived&>(*this);
-		return self.emptyImpl();
+		return self.readNextChunkImpl(chunk);
 	} 
-	// БЕСПОЛЕЗНО, ЗАМЕНЕНО
-	/*const char_t* getData() const {
-		const Derived& self = static_cast<const Derived&>(*this);
-		return self.getDataImpl();
-	}*/
+
 };

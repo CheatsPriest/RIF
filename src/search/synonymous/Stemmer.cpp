@@ -4,7 +4,7 @@
 std::string Stemmer::stem(std::string&& word_cp1251) {
     if (!stemmer_ptr || word_cp1251.empty()) return word_cp1251;
 
-
+    
     std::string word_utf8 = (std::move(word_cp1251));
 
 

@@ -18,46 +18,71 @@ private:
     reader_v reader;
     SearchConfig& config;
     size_t prev_word_size;
-public:
-    char_t readSymbol() const {
-        return std::visit([](const auto& r) { return r.readSymbol(); }, reader);
+
+    string chunk;
+    bool isEmpty = false;
+
+    long long curLen=0;
+    long long curMaxLen=0;
+    size_t position=0;
+
+    bool loadNextChunkFromBackend() noexcept {
+        string& current_chunk = chunk;
+        return std::visit([&](auto& r) {
+            return r.readNextChunkImpl(current_chunk);
+            }, reader);
     }
+
+    void loadNextChunk() noexcept {
+        curLen -= curMaxLen;
+        isEmpty = !loadNextChunkFromBackend();
+        curMaxLen = chunk.size();
+    }
+    void handleBufferOverflow() {
+        while (curLen >= curMaxLen && !isEmpty) {
+            loadNextChunk();
+        }
+    }
+public:
+    
     // Конструкторы
     explicit UnifiedReader(const std::string& filename)
-        : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0){
+        : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0)
+    , curLen(0), curMaxLen(0), position(0){
+        loadNextChunk();
     }
 
     explicit UnifiedReader(reader_v&& r)
-        : reader(std::move(r)), config(SearchConfig::get() ), prev_word_size(0){
+        : reader(std::move(r)), config(SearchConfig::get() ), prev_word_size(0)
+        , curLen(0), curMaxLen(0), position(0) {
+        loadNextChunk();
+    }
+
+    inline char_t readSymbol() noexcept {
+
+        return chunk[curLen];
+
+    }
+    inline void moveToSymbol(long long dif) noexcept {
+        position += dif;
+        curLen += dif;
+
+        // Позволяем компилятору встроить "быстрый путь"
+        if ((curLen >= curMaxLen)) {
+            handleBufferOverflow();
+        }
     }
     
 
-    
-    /*const char_t* getData() {
-        return std::visit([](const auto& r) { return r.getData(); }, reader);
-    }*/
-
-    bool moveToSymbol(long long diff) {
-        return std::visit([diff](auto& r) { return r.moveToSymbol(diff); }, reader);
-    }
-
-    size_t getPos() const {
-        return std::visit([](const auto& r) { return r.getPos(); }, reader);
+    size_t getPos() const noexcept {
+        return position;
     }
     size_t getWordSize() const noexcept {
         return prev_word_size;
     }
     
-    bool empty()  {
-        return std::visit([]( auto& r) { return r.empty(); }, reader);
-    }
-
-    const char_t* getPtr() const {
-        return std::visit([](const auto& r) {
-            // У BaseReader нет getPtr, но у наследников может быть
-            // Если нужен - добавим в BaseReader
-            return static_cast<const char_t*>(nullptr);
-            }, reader);
+    bool empty() noexcept {
+        return isEmpty;
     }
 
 
@@ -71,7 +96,7 @@ public:
 
 private:
     // Пропустить разделители
-    void skipSeparators() {
+    void skipSeparators() noexcept {
         while (!empty() && is_separator(readSymbol())) {
             moveToSymbol(1);
         }
@@ -96,7 +121,7 @@ public:
     }
 
     // Перейти к следующему слову
-    bool moveToNextWord() {
+    bool moveToNextWord() noexcept  {
         skipSeparators();
         return !empty();
     }
