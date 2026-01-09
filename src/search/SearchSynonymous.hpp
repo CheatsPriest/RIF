@@ -5,14 +5,15 @@
 #include <search/SearchRawResult.hpp>
 #include <queue>
 #include <search/synonymous/StemmerPipeline.hpp>
-#include <search/caching/LRUSteamming.hpp>
- 
+#include <aho_corasick/TreeWalker.hpp>
+// Продвинутый поиск
 class SearchSynonymous {
 private:
     SearchConfig& config;
     SynonymsSettings& settings;
-    std::locale sys_locale;
     StemmerPipeline stemmer;
+
+    TreeWalker treeWalker;
 
     std::queue<size_t> syn_in_walk;
     std::queue<size_t> ids_in_file;
@@ -44,7 +45,7 @@ public:
     }
     std::vector<RawResult> search(UnifiedReader& reader) {
         const auto& map = settings.synonyms_per_group;
-
+        reader.setIsLowercase(true);
         clearQueues();
 
         std::vector<RawResult> result;
@@ -64,10 +65,26 @@ public:
                 cascadPop();
             }
 
-            string word = stemmer.stem(reader.readWord());
+
+            
             walk_id++;
             
-            auto it = map.find(std::move(word));
+            treeWalker.reset();
+
+            reader.skipSeparators();
+            
+            while (true) {
+                char_t c = reader.readSymbol();
+                if (is_separator(c))break;
+                treeWalker.walk(c);
+                reader.moveToSymbol(1);
+            }
+
+            if (!treeWalker.getVerdict())continue;
+            auto word = stemmer.stem_lowercased(treeWalker.getWord());
+
+
+            auto it = map.find(word);
 
             if (it != map.end()) {
                 ids_in_file.push(reader.getPos()-reader.getWordSize());
@@ -90,9 +107,6 @@ public:
 
             }
 
-            
-
-            reader.moveToNextWord();
             
         }
 

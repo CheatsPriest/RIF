@@ -9,7 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <read/UnifiedReader.hpp>
-
+#include <aho_corasick/SymbolsTree.hpp>
 
 namespace fs = std::filesystem;
 
@@ -176,5 +176,5 @@ void PreSynonyms::run() {
     pr();
     SynonymsReader sr;
     sr();
-
+    SymbolsTree::get().buildTree();
 }

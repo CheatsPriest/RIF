@@ -30,7 +30,6 @@ int main() {
     std::setvbuf(stdout, nullptr, _IOFBF, 1000); // Чтобы вывод не тормозил
 #endif
 
-   
     
     /*SynonymsSettings::get().synonyms_per_group = { {u"машин", 0}, {u"пух", 1}};
     LRUSteamming cache(5, 100);
@@ -149,12 +148,12 @@ int main() {
     auto& stats = SearchStats::get();
     cfg.raw_templ = u"большие деньги";
     
-    SynonymsSettings::get().use_synonyms = false;
+    SynonymsSettings::get().use_synonyms = true;
 
     Core core;
     int prob;
 
-    SearchConfig::get().amount_of_search_threads = 5;
+    SearchConfig::get().amount_of_search_threads = 1;
     core.resizeSearchPool();
     
     for (int i = 0; i < 1; i++) {
@@ -168,7 +167,7 @@ int main() {
         std::cout << "Completed Search: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
     }
    
-    std::cin >> prob;
+    //std::cin >> prob;
 
     cfg.raw_templ = u"деньги";
     
@@ -208,7 +207,7 @@ int main() {
     //    //UnifiedReader reader("C://src/12.docx");
     //    //UnifiedReader reader("C://src/syn.txt");
     //    //UnifiedReader reader("C://src/UTF8.txt");
-    //    UnifiedReader reader("C://src/big.txt");
+    //    UnifiedReader reader("C://src/test.docx");
     //    /*while (!reader.empty()) {
     //        std::cout << reader.readWord() << std::endl;
     //        reader.moveToNextWord();

@@ -9,12 +9,6 @@
 
 
 
-struct StringViewHash {
-    using is_transparent = void; // Важно для C++20
-    size_t operator()(string_view sv) const { return std::hash<string_view>{}(sv); }
-    size_t operator()(const string& s) const { return std::hash<string>{}(s); }
-};
-
 // Создается в SearchEngine и передается в последующие поиски
 class LRUSteamming {
 private:
@@ -55,7 +49,7 @@ private:
 
     size_t insert(string_view word_v) {
         
-        string res = stemmer.stem(word_v);
+        string res;// = stemmer.stem(word_v);
         auto it_c_map = settings.synonyms_per_group.find(res);
         size_t group_id = bad_value_flag;
         if (it_c_map != settings.synonyms_per_group.end()) {

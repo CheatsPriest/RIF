@@ -19,23 +19,30 @@ private:
     SearchConfig& config;
     size_t prev_word_size;
 
+    Lowercaser lowercaser;
+
     string chunk;
     bool isEmpty = false;
+
+    bool is_lowercase=false;
 
     long long curLen=0;
     long long curMaxLen=0;
     size_t position=0;
 
-    bool loadNextChunkFromBackend() noexcept {
+    bool loadNextChunkFromBackend()  {
         string& current_chunk = chunk;
         return std::visit([&](auto& r) {
             return r.readNextChunkImpl(current_chunk);
             }, reader);
     }
 
-    void loadNextChunk() noexcept {
+    void loadNextChunk()  {
         curLen -= curMaxLen;
         isEmpty = !loadNextChunkFromBackend();
+        if (is_lowercase) {
+            lowercaser(chunk);
+        }
         curMaxLen = chunk.size();
     }
     void handleBufferOverflow() {
@@ -50,20 +57,24 @@ public:
         : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0)
     , curLen(0), curMaxLen(0), position(0){
         loadNextChunk();
+        is_lowercase = !config.respect_registers;
     }
 
     explicit UnifiedReader(reader_v&& r)
         : reader(std::move(r)), config(SearchConfig::get() ), prev_word_size(0)
         , curLen(0), curMaxLen(0), position(0) {
         loadNextChunk();
+        is_lowercase = !config.respect_registers;
     }
-
-    inline char_t readSymbol() noexcept {
+    void setIsLowercase(bool value) {
+        is_lowercase = value;
+    }
+    inline char_t readSymbol()  {
 
         return chunk[curLen];
 
     }
-    inline void moveToSymbol(long long dif) noexcept {
+    inline void moveToSymbol(long long dif)  {
         position += dif;
         curLen += dif;
 
@@ -74,14 +85,14 @@ public:
     }
     
 
-    size_t getPos() const noexcept {
+    size_t getPos() const  {
         return position;
     }
-    size_t getWordSize() const noexcept {
+    size_t getWordSize() const  {
         return prev_word_size;
     }
     
-    bool empty() noexcept {
+    bool empty()  {
         return isEmpty;
     }
 
@@ -96,13 +107,14 @@ public:
 
 private:
     // Пропустить разделители
-    void skipSeparators() noexcept {
+    
+
+public:
+    void skipSeparators()  {
         while (!empty() && is_separator(readSymbol())) {
             moveToSymbol(1);
         }
     }
-
-public:
     // Прочитать слово
     string readWord() {
         if (empty()) return {};
@@ -121,7 +133,7 @@ public:
     }
 
     // Перейти к следующему слову
-    bool moveToNextWord() noexcept  {
+    bool moveToNextWord()   {
         skipSeparators();
         return !empty();
     }

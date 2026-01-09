@@ -20,10 +20,17 @@ string StemmerPipeline::stem(string&& word) {
     std::string stemmed_utf8 = steammer.stem(std::move(utf8_word));
 
     // 4. Конвертируем результат обратно в UTF-16
-    return icu::UnicodeString::fromUTF8(stemmed_utf8).getTerminatedBuffer();
+    return string(icu::UnicodeString::fromUTF8(stemmed_utf8).getTerminatedBuffer());
 }
 
-string StemmerPipeline::stem(string_view word_v)
-{
-    return stem(string(word_v));
+const std::u16string& StemmerPipeline::stem_lowercased(std::u16string_view word_v) {
+    utf8_buf.clear();
+    icu::UnicodeString(word_v.data(), (int32_t)word_v.size()).toUTF8String(utf8_buf);
+
+    std::string_view utf8_root = steammer.stem(utf8_buf);
+
+    icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(utf8_root);
+    utf16_buf.assign(ustr.getBuffer(), ustr.length());
+
+    return utf16_buf;
 }

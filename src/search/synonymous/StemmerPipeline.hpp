@@ -5,12 +5,15 @@ class StemmerPipeline {
 private:
     Stemmer steammer;
     Lowercaser lower_case;
+
+    std::string utf8_buf;       
+    std::u16string utf16_buf;
 public:
     StemmerPipeline(std::string_view language) : steammer(language) {
 
     }
     string stem(string&& word);
-    string stem(string_view word_v);
+    const std::u16string& stem_lowercased(std::u16string_view word_v);
     void changeLanguage(std::string_view language);
 
     ~StemmerPipeline() = default;

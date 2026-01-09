@@ -23,8 +23,8 @@ public:
 
 	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx"};
 
-	//std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
-	std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest\txt)", };//"C://testFlood"
+	std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
+	//std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
 	string raw_templ = u"большие деньги";//неотформатированный 
@@ -62,6 +62,12 @@ private:
 
 };
 
+struct StringViewHash {
+	using is_transparent = void; // Важно для C++20
+	size_t operator()(string_view sv) const { return std::hash<string_view>{}(sv); }
+	size_t operator()(const string& s) const { return std::hash<string>{}(s); }
+};
+
 struct SynonymsSettings {
 	bool use_synonyms = true;
 	size_t max_synonym_distance = 5;
@@ -81,7 +87,7 @@ struct SynonymsSettings {
 	long long target_amount;
 	size_t max_group_id;
 	std::vector<long long> groupId_count_read_only;
-	std::unordered_map<string, size_t, std::hash<string_view>, std::equal_to<>> synonyms_per_group;
+	std::unordered_map<string, size_t, StringViewHash, std::equal_to<>> synonyms_per_group;
 
 	// Стоп-слова для пропуска
 	std::unordered_set<string> skip_words = {

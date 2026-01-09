@@ -74,6 +74,7 @@ public:
                 }
                 else if(templ[i] != cur and i!=0){
                     i = 0;
+                    reader.moveToSymbol(1);
                 }
                 else {
                     reader.moveToSymbol(1);

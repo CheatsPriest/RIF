@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <mutex>
 #include <atomic>
 #include <condition_variable>
@@ -11,7 +11,7 @@ class ThreadSafeQueue {
 private:
     size_t capacity;
     size_t size;
-    std::queue<std::string> q;
+    std::queue<T> q;
 
     std::atomic<bool> work;
 
@@ -65,7 +65,7 @@ public:
         return work;
     }
     void turnOff() {
-        work.store(false);
+        work.store(false, std::memory_order::release);
         in_cv.notify_all();
         out_cv.notify_all();
     }

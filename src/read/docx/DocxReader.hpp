@@ -9,24 +9,32 @@
 
 
 
+#include <unicode/unistr.h>
+#include <generator>
+#include <string>
+
 class DocxReader : public BaseReader<DocxReader> {
 private:
-    static constexpr char_t next_line_symbol = u'\n';
-
-    std::string filename; // Путь к файлу остается в UTF-8
-    std::generator<std::string> gen_obj; // DuckX отдает UTF-8
+    std::string filename;
+    // Оставляем генератор, но убираем хранение итератора как поля класса
+    std::generator<std::string> gen_obj;
     using gen_iterator = decltype(gen_obj.begin());
-    gen_iterator curIter;
-
-    // Вспомогательный метод для конвертации UTF-8 -> UTF-16
-    static string to_utf16(const std::string& utf8_str) {
-        return icu::UnicodeString::fromUTF8(utf8_str).getTerminatedBuffer();
+    // Используем std::u16string (или ваш string_t / char_t)
+    // Важно: ICU работает с UChar (обычно это char16_t)
+    static std::u16string to_utf16(const std::string& utf8_str) {
+        icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(utf8_str);
+        // Извлекаем данные безопасно: копируем из внутреннего буфера ICU в std::u16string
+        return std::u16string(reinterpret_cast<const char16_t*>(ustr.getBuffer()), ustr.length());
     }
-    bool has_text;
-    std::generator<std::string> create_walker() {
-        duckx::Document doc(filename);
+
+    // Параметризуем создание воркера, чтобы не зависеть от состояния полей во время инициализации
+    std::generator<std::string> create_walker(std::string path) {
+        duckx::Document doc(path);
         doc.open();
-        if (!doc.is_open()) co_return;
+        if (!doc.is_open()) {
+            co_return;
+        }
+
         std::string buffer;
         buffer.reserve(CHUNK_SIZE + 1024);
 
@@ -44,28 +52,44 @@ private:
         if (!buffer.empty()) {
             co_yield std::move(buffer);
         }
-        has_text = false;
     }
 
-    
+    // Храним текущее состояние итерации через сам итератор генератора
+    // Но инициализируем его только один раз
+    std::unique_ptr<gen_iterator> it;
+    bool initialized = false;
 
 public:
     DocxReader(const std::string& filename)
         : filename(filename),
-        gen_obj(create_walker()),
-        curIter(gen_obj.begin())
+        gen_obj(create_walker(filename)), it(nullptr)
     {
-        has_text = (curIter != gen_obj.end());
+       
+        // Не вызываем begin() здесь, если есть риск перемещения объекта
     }
-    bool readNextChunkImpl(string& chunk) {
 
-        if (curIter == gen_obj.end() or !has_text) return false;
-        chunk.clear();
-        chunk = to_utf16(*curIter);
+    // В C++23 генераторы move-only, запретим копирование явно
+    DocxReader(const DocxReader&) = delete;
+    DocxReader(DocxReader&&) = default;
 
-        ++curIter;
+    bool readNextChunkImpl(std::u16string& chunk) {
+        // Ленивая инициализация итератора
+        if (!initialized) {
+            it = std::make_unique< gen_iterator>(gen_obj.begin());
+            initialized = true;
+        }
+
+        if (*it == gen_obj.end()) {
+            return false;
+        }
+
+        // 1. Конвертируем текущую строку из UTF-8 в UTF-16
+        // 2. Кладем результат прямо в chunk
+        chunk = to_utf16(**it);
+
+        // Продвигаем итератор к следующему co_yield
+        ++*it;
 
         return true;
     }
-    
 };

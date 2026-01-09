@@ -22,6 +22,23 @@ std::string Stemmer::stem(std::string&& word_cp1251) {
     return word_utf8;
 }
 
+std::string_view Stemmer::stem(std::string_view word_v) {
+    if (!stemmer_ptr || word_v.empty()) return word_v;
+
+    const unsigned char* result = sb_stemmer_stem(
+        stemmer_ptr.get(),
+        reinterpret_cast<const unsigned char*>(word_v.data()),
+        static_cast<int>(word_v.size())
+    );
+
+    if (result) {
+        return std::string_view(reinterpret_cast<const char*>(result));
+    }
+
+    return word_v;
+}
+
+
 void Stemmer::changeLanguage(std::string_view language) {
     stemmer_ptr.reset(sb_stemmer_new(language.data(), "UTF_8"));
 }
