@@ -10,7 +10,7 @@ using string = std::u16string;
 using string_view = std::u16string_view;
 
 
-
+static constexpr size_t optimal_word_size = 64;
 
 class Lowercaser {
 public:

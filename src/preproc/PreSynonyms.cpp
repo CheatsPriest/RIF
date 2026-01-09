@@ -119,16 +119,16 @@ private:
 
     void form_groups(UnifiedReader& reader) {
         while (!reader.empty()) {
-            string id_str = reader.readWord();
+            string id_str = string(reader.readWord());
             if (id_str.empty()) break;
-
+            
             size_t group_id = parseId(id_str);
-            string word = reader.readWord();
+            string word = string(reader.readWord());
             if (word.empty()) continue;
 
             word = stem.stem(std::move(word));
 
-            auto it = settings.words_from_template.find(word);
+            auto it = settings.words_from_template.find(std::move(word));
             if (it != settings.words_from_template.end()) {
                 auto& g_info = temp_groups[group_id];
                 if (g_info.count == 0 && g_info.future_id == 0) {
@@ -144,11 +144,11 @@ private:
 
     void processGroups(UnifiedReader& reader) {
         while (!reader.empty()) {
-            string id_str = reader.readWord();
+            string id_str = string(reader.readWord());
             if (id_str.empty()) break;
 
             size_t group_id = parseId(id_str);
-            string word = reader.readWord();
+            string word = string( reader.readWord());
             if (word.empty()) continue;
 
             auto it = temp_groups.find(group_id);

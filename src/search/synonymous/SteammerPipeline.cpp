@@ -25,5 +25,10 @@ string StemmerPipeline::stem(string&& word) {
 
 string StemmerPipeline::stem(string_view word_v)
 {
+    if (word_v.size() <= 3)return string(word_v);
+    std::string utf8_word;
+    icu::UnicodeString(reinterpret_cast<const UChar*>(word_v.data()), static_cast<int32_t>(word_v.size()))
+        .toUTF8String(utf8_word);
+    std::string stemmed_utf8 = steammer.stem(std::move(utf8_word));
     return stem(string(word_v));
 }

@@ -3,7 +3,7 @@
 #include "char.hpp"
 
 // 64КБ для оптимального кэша
-static constexpr size_t CHUNK_SIZE = 524288;
+static constexpr size_t CHUNK_SIZE = 65536;
 
 template<typename Derived>
 class BaseReader {

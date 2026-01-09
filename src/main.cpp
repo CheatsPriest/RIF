@@ -149,12 +149,12 @@ int main() {
     auto& stats = SearchStats::get();
     cfg.raw_templ = u"большие деньги";
     
-    SynonymsSettings::get().use_synonyms = false;
+    SynonymsSettings::get().use_synonyms = true;
 
     Core core;
     int prob;
 
-    SearchConfig::get().amount_of_search_threads = 5;
+    SearchConfig::get().amount_of_search_threads = 1;
     core.resizeSearchPool();
     
     for (int i = 0; i < 1; i++) {

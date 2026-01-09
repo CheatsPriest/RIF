@@ -23,8 +23,8 @@ public:
 
 	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx"};
 
-	//std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
-	std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest\txt)", };//"C://testFlood"
+	std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
+	//std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest\txt)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
 	string raw_templ = u"большие деньги";//неотформатированный 

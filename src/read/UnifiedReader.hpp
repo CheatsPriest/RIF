@@ -13,11 +13,14 @@
 
 reader_v openFile(const std::string& fileName);
 
+
 class UnifiedReader {
 private:
     reader_v reader;
     SearchConfig& config;
     size_t prev_word_size;
+
+    string word;
 
     string chunk;
     bool isEmpty = false;
@@ -26,20 +29,26 @@ private:
     long long curMaxLen=0;
     size_t position=0;
 
+    Lowercaser lower_case;
+
     bool loadNextChunkFromBackend() noexcept {
         string& current_chunk = chunk;
         return std::visit([&](auto& r) {
             return r.readNextChunkImpl(current_chunk);
             }, reader);
+        
+       
+        
     }
 
-    void loadNextChunk() noexcept {
+    void loadNextChunk()  {
+        chunk.clear();
         curLen -= curMaxLen;
         isEmpty = !loadNextChunkFromBackend();
         curMaxLen = chunk.size();
     }
     void handleBufferOverflow() {
-        while (curLen >= curMaxLen && !isEmpty) {
+        while (curLen >= chunk.size() && !isEmpty) {
             loadNextChunk();
         }
     }
@@ -50,12 +59,14 @@ public:
         : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0)
     , curLen(0), curMaxLen(0), position(0){
         loadNextChunk();
+        word.reserve(optimal_word_size);
     }
 
     explicit UnifiedReader(reader_v&& r)
         : reader(std::move(r)), config(SearchConfig::get() ), prev_word_size(0)
         , curLen(0), curMaxLen(0), position(0) {
         loadNextChunk();
+        word.reserve(optimal_word_size);
     }
 
     inline char_t readSymbol() noexcept {
@@ -101,28 +112,53 @@ private:
             moveToSymbol(1);
         }
     }
-
+    const char_t* getData() noexcept {
+        return &chunk[curLen];
+    }
 public:
     // Прочитать слово
-    string readWord() {
-        if (empty()) return {};
+    bool isSafeForView() {
+        return curLen + 32 >= curMaxLen;
+    }
 
+
+    string_view readWord() {
+        if (isSafeForView()) {
+            return readWord_v();
+        }
+        else {
+            return readWord_s();
+        }
+    }
+    string_view readWord_v() {
+        if (empty())return {};
         skipSeparators();
-        if (empty()) return {};
-
-        string res;
-        res.reserve(16);//средняя длина слов
+        if (empty())return {};
+        const char_t* left = getData();
+        
+        size_t word_len = 0;
         while (!empty() && !is_separator(readSymbol())) {
-            res += readSymbol();
+            word_len++;
             moveToSymbol(1);
         }
-        prev_word_size = res.size();
-        return (std::move(res));
+
+        return string_view(left, word_len);
+    }
+    string_view readWord_s() {
+        word.clear();
+        skipSeparators();
+        while (!empty() && !is_separator(readSymbol())) {
+            word += readSymbol();
+            moveToSymbol(1);
+        }
+        prev_word_size = word.size();
+        return word;
     }
 
     // Перейти к следующему слову
     bool moveToNextWord() noexcept  {
         skipSeparators();
+
         return !empty();
     }
     string loadContext(long long left_pos, long long right_pos) {
