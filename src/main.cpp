@@ -23,6 +23,8 @@
 
 #include <search/caching/LRUSteamming.hpp>
 
+#include <ImGui/ui/DesktopUi.hpp>
+
 int main() {
 
 #ifdef _WIN32
@@ -46,68 +48,8 @@ int main() {
         std::cout << cache.get(u"пух") << std::endl;
         std::cout << "====SECTION====" << std::endl;
     }*/
-    //try {
-
-    //    Window app(1280, 720, "ImGui Window");
-
-    //    // Данные для демонстрации в интерфейсе
-    //    float color[3] = { 0.1f, 0.1f, 0.1f };
-    //    int counter = 0;
-    //    NFD_Init();
-    //    // 2. Главный цикл приложения
-    //    while (!app.shouldClose()) {
-    //        // Начало кадра (обработка событий и подготовка ImGui)
-    //        app.newFrame();
-
-    //        // --- Здесь пишем код интерфейса ImGui ---
-
-    //        // Создаем простое окно ImGui
-    //        ImGui::Begin("Управление");
-
-    //        ImGui::Text("Привет! Это твое окно на OpenGL + ImGui.");
-    //        ImGui::ColorEdit3("Цвет фона", color); // Слайдер цвета
-
-    //        if (ImGui::Button("Нажми меня")) {
-    //            counter++;
-    //        }
-    //        ImGui::SameLine();
-    //        ImGui::Text("Счетчик: %d", counter);
-
-    //        ImGui::Separator();
-    //        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-
-
-    //        if (ImGui::Button("Выбрать папку")) {
-    //            NFD::UniquePath outPath;
-
-    //            // Вызов диалога выбора папки
-    //            nfdresult_t result = NFD::PickFolder(outPath);
-
-    //            if (result == NFD_OKAY) {
-    //                std::cout << "Выбрана папка: " << outPath.get() << std::endl;
-    //                // Сохраните путь в свою переменную
-    //            }
-    //            else if (result == NFD_CANCEL) {
-    //                std::cout << "Выбор отменен" << std::endl;
-    //            }
-    //            else {
-    //                std::cout << "Ошибка: " << NFD::GetError() << std::endl;
-    //            }
-    //        }
-
-    //        ImGui::End();
-    //        // ---------------------------------------
-
-    //        // Конец кадра (рендер и вывод на экран)
-    //        app.endFrame();
-    //    }
-    //}
-    //catch (const std::exception& e) {
-    //    // Обработка ошибок инициализации
-    //    printf("Ошибка: %s\n", e.what());
-    //    return -1;
-    //}
-    //NFD_Quit();
+    DesktopUi ui;
+    ui.run();
     //std::string path = "C:\\src\\ANSI_2051.txt"; // Укажите свой путь
     //std::u16string content = readAnyFileToUTF16(path);
 
@@ -144,32 +86,32 @@ int main() {
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
 
-    auto& cfg = SearchConfig::get();
-    auto& stats = SearchStats::get();
-    cfg.raw_templ = u"большие деньги";
-    
-    SynonymsSettings::get().use_synonyms = true;
+    //auto& cfg = SearchConfig::get();
+    //auto& stats = SearchStats::get();
+    //cfg.raw_templ = u"большие деньги";
+    //
+    //SynonymsSettings::get().use_synonyms = true;
 
-    Core core;
-    int prob;
+    //Core core;
+    //int prob;
 
-    SearchConfig::get().amount_of_search_threads = 1;
-    core.resizeSearchPool();
-    
-    for (int i = 0; i < 1; i++) {
-        auto start = std::chrono::steady_clock::now();
-        core.startSeacrhing();
+    //SearchConfig::get().amount_of_search_threads = 1;
+    //core.resizeSearchPool();
+    //
+    //for (int i = 0; i < 1; i++) {
+    //    auto start = std::chrono::steady_clock::now();
+    //    core.startSeacrhing();
 
-        while (stats.process_search);
-        auto end = std::chrono::steady_clock::now();
+    //    while (stats.process_search);
+    //    auto end = std::chrono::steady_clock::now();
 
 
-        std::cout << "Completed Search: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
-    }
+    //    std::cout << "Completed Search: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+    //}
    
-    //std::cin >> prob;
+    ////std::cin >> prob;
 
-    cfg.raw_templ = u"деньги";
+    //cfg.raw_templ = u"деньги";
     
     /*DocxReader doc("C://src/big.docx");
     string chunk;

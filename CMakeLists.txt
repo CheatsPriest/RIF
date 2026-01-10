@@ -35,7 +35,7 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
 "src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp" 
 "src/ImGui/Window.hpp" "src/ImGui/Window.cpp"
- "src/ImGui/ui/MainUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp")
+ "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h")
 
 target_compile_definitions(RIF PRIVATE 
     PROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}"
