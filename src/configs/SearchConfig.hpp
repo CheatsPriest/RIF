@@ -27,8 +27,8 @@ public:
 	//std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = u"большие деньги";//неотформатированный 
-	string exact_templ = u"";//отформатированный, например если игнорить регистр, то понижаем
+	string raw_templ = u8"большие деньги";//неотформатированный 
+	string exact_templ = u8"";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';
 	char_t substring_symbol = '?';
@@ -37,11 +37,9 @@ public:
 	long long right_context = 25;
 
 	std::unordered_set<char_t> separators = { '.', ',', '!', '?', ';', ':', '(', ')',
-					'[', ']', '{', '}', '"', '\'', '-', '_',
-					u'«', u'»', u'„', u'“', u'”', u'‘', u'’', u'—',
-					u'…', u'¿', u'¡', u'‹', u'›', u'„', u'‟', '~',
+					'[', ']', '{', '}', '"', '\'', '-', '_', '~',
 					'@', '#', '$', '%', '^', '&', '*', '+',
-					'=', '|', '\\', '/', '<', '>', '+', '-', '*'};
+					'=', '|', '\\', '/', '<', '>', '+', '-', '*', '\"'};
 
 	
 
@@ -91,8 +89,8 @@ struct SynonymsSettings {
 
 	// Стоп-слова для пропуска
 	std::unordered_set<string> skip_words = {
-		u"в", u"на", u"за", u"под", u"над", u"и", u"или", u"но",
-		u"с", u"по", u"о", u"от", u"до", u"из", u"у", u"без"
+		u8"в", u8"на", u8"за", u8"под", u8"над", u8"и", u8"или", u8"но",
+		u8"с", u8"по", u8"о", u8"от", u8"до", u8"из", u8"у", u8"без"
 	};
 	bool isSkipabble(const string& word) {
 		return skip_words.contains(word);

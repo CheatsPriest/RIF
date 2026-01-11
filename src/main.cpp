@@ -33,23 +33,23 @@ int main() {
 #endif
 
     
-    /*SynonymsSettings::get().synonyms_per_group = { {u"машин", 0}, {u"пух", 1}};
+    /*SynonymsSettings::get().synonyms_per_group = { {u8"машин", 0}, {u8"пух", 1}};
     LRUSteamming cache(5, 100);
     for (int i = 0; i < 100; i++) {
-        std::cout << cache.get(u"машина") << std::endl;
-        std::cout << cache.get(u"леха") << std::endl;
-        std::cout << cache.get(u"пушка") << std::endl;
-        std::cout << cache.get(u"пуха") << std::endl;
-        std::cout << cache.get(u"машина") << std::endl;
-        std::cout << cache.get(u"душка") << std::endl;
-        std::cout << cache.get(u"мушка") << std::endl;
-        std::cout << cache.get(u"машина") << std::endl;
-        std::cout << cache.get(u"лепеха") << std::endl;
-        std::cout << cache.get(u"пух") << std::endl;
+        std::cout << cache.get(u8"машина") << std::endl;
+        std::cout << cache.get(u8"леха") << std::endl;
+        std::cout << cache.get(u8"пушка") << std::endl;
+        std::cout << cache.get(u8"пуха") << std::endl;
+        std::cout << cache.get(u8"машина") << std::endl;
+        std::cout << cache.get(u8"душка") << std::endl;
+        std::cout << cache.get(u8"мушка") << std::endl;
+        std::cout << cache.get(u8"машина") << std::endl;
+        std::cout << cache.get(u8"лепеха") << std::endl;
+        std::cout << cache.get(u8"пух") << std::endl;
         std::cout << "====SECTION====" << std::endl;
     }*/
-    DesktopUi ui;
-    ui.run();
+    /*DesktopUi ui;
+    ui.run();*/
     //std::string path = "C:\\src\\ANSI_2051.txt"; // Укажите свой путь
     //std::u16string content = readAnyFileToUTF16(path);
 
@@ -86,32 +86,32 @@ int main() {
     //    std::cout << "приемAs" << " -> " << stemmer.stem("приемAs") << std::endl;
     //}
 
-    //auto& cfg = SearchConfig::get();
-    //auto& stats = SearchStats::get();
-    //cfg.raw_templ = u"большие деньги";
-    //
-    //SynonymsSettings::get().use_synonyms = true;
+    auto& cfg = SearchConfig::get();
+    auto& stats = SearchStats::get();
+    cfg.raw_templ = u8"большие деньги";
+    
+    SynonymsSettings::get().use_synonyms = true;
 
-    //Core core;
-    //int prob;
+    Core core;
+    int prob;
 
-    //SearchConfig::get().amount_of_search_threads = 1;
-    //core.resizeSearchPool();
-    //
-    //for (int i = 0; i < 1; i++) {
-    //    auto start = std::chrono::steady_clock::now();
-    //    core.startSeacrhing();
+    SearchConfig::get().amount_of_search_threads = 1;
+    core.resizeSearchPool();
+    
+    for (int i = 0; i < 1; i++) {
+        auto start = std::chrono::steady_clock::now();
+        core.startSeacrhing();
 
-    //    while (stats.process_search);
-    //    auto end = std::chrono::steady_clock::now();
+        while (stats.process_search);
+        auto end = std::chrono::steady_clock::now();
 
 
-    //    std::cout << "Completed Search: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
-    //}
+        std::cout << "Completed Search: " << std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() << std::endl;
+    }
    
     ////std::cin >> prob;
 
-    //cfg.raw_templ = u"деньги";
+    //cfg.raw_templ = u8"деньги";
     
     /*DocxReader doc("C://src/big.docx");
     string chunk;
@@ -120,7 +120,7 @@ int main() {
         std::cout << chunk.size() << std::endl;
     }*/
 
-    /*FileStreamReader doc("C://src/syn.txt");
+    /*FileStreamReader doc("C://src/ANSI.txt");
     string chunk;
     while (doc.readNextChunk(chunk)) {
         std::cout << chunk << std::endl;

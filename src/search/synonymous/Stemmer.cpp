@@ -1,12 +1,8 @@
 ﻿#include <search/synonymous/Stemmer.hpp>
 
 
-std::string Stemmer::stem(std::string&& word_cp1251) {
-    if (!stemmer_ptr || word_cp1251.empty()) return word_cp1251;
-
-    
-    std::string word_utf8 = (std::move(word_cp1251));
-
+string Stemmer::stem(string&& word_utf8) {
+    if (!stemmer_ptr || word_utf8.empty()) return word_utf8;
 
     const unsigned char* result = sb_stemmer_stem(
         stemmer_ptr.get(),
@@ -15,14 +11,14 @@ std::string Stemmer::stem(std::string&& word_cp1251) {
     );
 
     if (result) {
-        std::string result_utf8(reinterpret_cast<const char*>(result));
+        string result_utf8(reinterpret_cast<const char_t*>(result));
         return (std::move(result_utf8));
     }
 
     return word_utf8;
 }
 
-std::string_view Stemmer::stem(std::string_view word_v) {
+string_view Stemmer::stem(string_view word_v) {
     if (!stemmer_ptr || word_v.empty()) return word_v;
 
     const unsigned char* result = sb_stemmer_stem(
@@ -32,7 +28,8 @@ std::string_view Stemmer::stem(std::string_view word_v) {
     );
 
     if (result) {
-        return std::string_view(reinterpret_cast<const char*>(result));
+        int len = sb_stemmer_length(stemmer_ptr.get());
+        return string_view(reinterpret_cast<const char_t*>(result), len);
     }
 
     return word_v;

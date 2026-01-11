@@ -25,7 +25,7 @@ public:
         if (curLen < curMaxLen) {
             return chunk[curLen];
         }
-        return u'\0';
+        return u8'\0';
     }
 
     bool moveToSymbolImpl(long long dif) {

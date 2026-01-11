@@ -5,9 +5,9 @@
 
 #include <iostream>
 
-using char_t =  char16_t;
-using string = std::u16string;
-using string_view = std::u16string_view;
+using char_t =  char8_t;
+using string = std::u8string;
+using string_view = std::u8string_view;
 
 
 
@@ -16,31 +16,38 @@ class Lowercaser {
 public:
     Lowercaser() = default;
 
+    // 1. Для всей строки (самый частый случай)
     void operator()(string& str) const noexcept {
         if (str.empty()) return;
 
-        icu::UnicodeString uStr(reinterpret_cast<const UChar*>(str.data()),
-            static_cast<int32_t>(str.size()));
-        uStr.toLower();
+        // Создаем UnicodeString из UTF-8 данных
+        icu::UnicodeString uStr = icu::UnicodeString::fromUTF8(
+            reinterpret_cast<const char*>(str.data())
+        );
 
+        uStr.toLower(); 
 
-        if (uStr.length() != static_cast<int32_t>(str.size())) {
-            str.resize(uStr.length());
-        }
+        str.clear();
+        std::string temp;
+        uStr.toUTF8String(temp);
 
-        uStr.extract(0, uStr.length(), reinterpret_cast<UChar*>(str.data()));
+        // Перекладываем в наш string (u8string) через move
+        str.assign(reinterpret_cast<const char_t*>(temp.data()), temp.size());
     }
 
-    
     char_t operator()(char_t c) const noexcept {
-        return static_cast<char_t>(u_tolower(static_cast<UChar32>(c)));
+        if (c <= 127) { // Быстрый путь для латиницы
+            return static_cast<char_t>(std::tolower(static_cast<unsigned char>(c)));
+        }
+        return c;
     }
+
     string operator()(string&& str) const noexcept {
         operator()(str);
         return std::move(str);
     }
 };
 
-std::ostream& operator<<(std::ostream& os, const std::u16string& utf16_str);
+std::ostream& operator<<(std::ostream& os, const string& utf16_str);
 
-std::ostream& operator<<(std::ostream& os, const char16_t utf16_char);
+std::ostream& operator<<(std::ostream& os, const char_t utf16_char);

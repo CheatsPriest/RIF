@@ -28,7 +28,7 @@ public:
     void operator()() {
         factor = 0;
         settings.words_from_template.clear();
-        string cur = u"";
+        string cur = u8"";
 
         for (auto c : search_config.raw_templ) {
             if (is_separator(c) and !cur.empty()) {
@@ -109,7 +109,6 @@ private:
     size_t parseId(const string& word) {
         if (word.empty()) return 0;
         try {
-            // Конвертируем UTF-16 обратно в UTF-8 для std::stoull
             std::string s;
             icu::UnicodeString(reinterpret_cast<const UChar*>(word.data()), word.size()).toUTF8String(s);
             return std::stoull(s);

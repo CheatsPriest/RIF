@@ -11,7 +11,6 @@ private:
 
 public:
     DesktopUi() : app(1280, 720, "RIF") {
-        NFD_Init();
     }
     void run() {
         float color[3] = { 0.1f, 0.1f, 0.1f };
@@ -58,7 +57,6 @@ public:
         }
     }
     ~DesktopUi() {
-        NFD_Quit();
     }
 };
 

@@ -22,8 +22,8 @@ public:
 
     ~Stemmer() = default;
 
-    std::string stem(std::string&& word_cp1251);
-    std::string_view stem(std::string_view word_v);
+    string stem(string&& word_cp1251);
+    string_view stem(string_view word_v);
 
     void changeLanguage(std::string_view language);
 };
