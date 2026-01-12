@@ -1,6 +1,9 @@
 ﻿#include <ImGui/ui/desktop_menu/MainMenu.h>
 #include <format>
 
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 void MainMenu::optionsMenu()
 {
@@ -73,11 +76,16 @@ void MainMenu::foldersChose() {
         NFD::UniquePath outPath;
 
         nfdresult_t result = NFD::PickFolder(outPath);
-
+        
         if (result == NFD_OKAY) {
             std::string path = outPath.get();
-            auto it = std::find(inital_folders.begin(), inital_folders.end(), path);
-            if(it== inital_folders.end())inital_folders.push_back(std::move(path));
+            auto u16path = utf8_to_utf16_icu(path);
+            fs::path pa(u16path);
+
+            std::cout << pa.string() << std::endl;
+
+            auto it = std::find(inital_folders.begin(), inital_folders.end(), pa);
+            if(it== inital_folders.end())inital_folders.push_back(std::move(pa));
             
         }
         else if (result == NFD_CANCEL) {
@@ -91,7 +99,7 @@ void MainMenu::foldersChose() {
     int id = 0;
     for (auto it = inital_folders.begin(); it != inital_folders.end(); ) {
         ImGui::PushID(id);
-        ImGui::Text(it->c_str());
+        ImGui::Text(utf16_to_utf8_icu(it->u16string()).c_str());
         ImGui::SameLine();
         if (ImGui::Button("Удалить")) {
             it = inital_folders.erase(it);

@@ -8,6 +8,8 @@
 
 #include <char.hpp>
 #include <unicode/uchar.h>
+#include <filesystem>
+namespace fs = std::filesystem;
 
 constexpr static int start_amount_of_search_threads = 1;
 
@@ -23,7 +25,7 @@ public:
 
 	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx"};
 
-	std::vector<std::string> initial_folders = { R"(C:\src)", };//"C://testFlood"
+	std::vector<fs::path> initial_folders = { R"(C:\src)", };//"C://testFlood"
 	//std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 

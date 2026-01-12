@@ -15,22 +15,28 @@ namespace fs = std::filesystem;
 class Memorizer {
 private:
     std::unordered_set<std::string> set;
-
+    std::unordered_set<fs::path> path_set;
 public:
     bool testAndRemember(const std::string& str) {
         if (set.contains(str))return false;
         set.insert(str);
         return true;
+    }bool testAndRemember(const fs::path& str) {
+        if (path_set.contains(str))return false;
+        path_set.insert(str);
+        return true;
     }
     void clear() {
         set.clear();
+        path_set.clear();
     }
 };
 
 struct info {
-    std::string folder;
+    fs::path folder;  
     unsigned cur_depth;
 };
+
 
 struct FoldersInspector::Impl {
     SearchConfig& config;
@@ -46,21 +52,22 @@ struct FoldersInspector::Impl {
 
         // Добавляем начальные папки
         for (const auto& folder : config.initial_folders) {
+
+            
             if (fs::exists(folder) && fs::is_directory(folder)) {
                 addFolder(folder, 0);
             }
+            
+
         }
 
         while (!folders.empty() and stats.process_search.load(std::memory_order_acquire)) {
             info current = folders.front();
             folders.pop();
-            try {
+            
 
-                processFolder(current.folder, current.cur_depth);
-            }
-            catch (...) {
-
-            }
+            processFolder(current.folder, current.cur_depth);
+            
         }
 
         stats.is_inspecting_folders.store(false, std::memory_order::release);
@@ -76,16 +83,16 @@ private:
     Memorizer memory;
     std::queue<info> folders;
 
-    void addFile(std::string&& file) {
+    void addFile(const fs::path& file) {
         if (!isExtensionAllowed(file))return;
         if (memory.testAndRemember(file)) {
             std::cout << "To process: " << file << std::endl;
             stats.files_to_process.fetch_add(1, std::memory_order_release);
-            FilesQueues::get().push(std::move(file));
+            FilesQueues::get().push(std::move(file.string()));
         }
     }
 
-    void addFolder(const std::string& folder, unsigned depth) {
+    void addFolder(const fs::path& folder, unsigned depth) {
         if (memory.testAndRemember(folder)) {
             folders.push({ folder, depth });
         }
@@ -95,7 +102,7 @@ private:
         while (!folders.empty()) folders.pop();
     }
 
-    bool processFolder(const std::string& folder_path, unsigned current_depth) {
+    bool processFolder(const fs::path& folder_path, unsigned current_depth) {
         try {
             for (const auto& entry : fs::directory_iterator(folder_path)) {
                 if (!stats.process_search.load(std::memory_order_acquire)) {
@@ -103,7 +110,6 @@ private:
                 }
 
                 const auto& path = entry.path();
-                std::string path_str = path.string();
 
                 if (entry.is_directory()) {
                     // Проверяем, не игнорируется ли папка
@@ -113,11 +119,11 @@ private:
 
                     // Проверяем глубину рекурсии
                     if (current_depth < config.depth) {
-                        addFolder(path_str, current_depth + 1);
+                        addFolder(path, current_depth + 1);
                     }
                 }
                 else if (entry.is_regular_file()) {
-                    addFile(std::move(path_str));
+                    addFile(path);
                 }
             }
             return true;
@@ -144,19 +150,17 @@ private:
         return false;
     }
 
-    bool isExtensionAllowed(const std::string& file_path) const {
+    bool isExtensionAllowed(const fs::path& file_path) const {
         if (config.allowed_extensions.empty()) {
             return true; 
         }
+        std::string ext = file_path.extension().string();
 
-        size_t dot_pos = file_path.find_last_of('.');
+        size_t dot_pos = ext.find_last_of('.');
         if (dot_pos == std::string::npos) {
             return false; 
         }
 
-        std::string ext = file_path.substr(dot_pos);
-
-        
         {
             std::string ext_lower = ext;
             std::transform(ext_lower.begin(), ext_lower.end(),

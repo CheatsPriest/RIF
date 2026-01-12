@@ -73,7 +73,7 @@ public:
 
             reader.skipSeparators();
             
-            while (true) {
+            while (!reader.empty()) {
                 char_t c = reader.readSymbol();
                 if (is_separator(c))break;
                 treeWalker.walk(c);

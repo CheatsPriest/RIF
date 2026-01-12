@@ -11,7 +11,7 @@ class MainMenu {
 
 private:
 	std::string search_input;
-    std::list<std::string> inital_folders;
+    std::list<fs::path> inital_folders;
     SearchConfig& config;
     SynonymsSettings& syn_setting;
 	SearchStats& stats;
