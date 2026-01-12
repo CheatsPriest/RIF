@@ -1,15 +1,13 @@
-#pragma once
+﻿#pragma once
 #include "ThreadSafeQueue.hpp"
 #include <string>
+#include <vector>
+#include <results/SearchResult.hpp>
 
-struct SearchResult {
-    std::string file;
-    size_t position;
-    string context;
-    SearchResult(size_t position) : position(position){}
-};
+#include <filesystem>
 
-using file_queue_t = ThreadSafeQueue<std::string>;
+
+using file_queue_t = ThreadSafeQueue<std::filesystem::path>;
 using result_queue_t = ThreadSafeQueue<SearchResult>;
 
 class FilesQueues {

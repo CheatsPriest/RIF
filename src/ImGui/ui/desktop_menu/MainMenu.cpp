@@ -26,6 +26,16 @@ void MainMenu::optionsMenu()
 
     ImGui::Text("Последний поиск занял %dмс", std::chrono::duration_cast<std::chrono::milliseconds>(end_point-start_point).count());
 
+    auto memory_read = stats.kbytes_read.load(std::memory_order_acquire);
+    if(memory_read<1024)ImGui::Text("Прочитано %dкб", memory_read);
+    else {
+        memory_read /= 1024;
+        if (memory_read < 1024)ImGui::Text("Прочитано %dмб", memory_read);
+        else {
+            memory_read /= 1024;
+            ImGui::Text("Прочитано %dгб", memory_read);
+        }
+    }
     ImGui::End();
 }
 
@@ -60,6 +70,8 @@ void MainMenu::drawProgressSearchBar()
     ImGui::ProgressBar(progress, ImVec2(-1.0f, 0.0f), overlay_buf);
 }
 
+
+
 void MainMenu::draw() {
     
     if (!stats.process_search.load(std::memory_order::acquire)) {
@@ -68,7 +80,7 @@ void MainMenu::draw() {
     else {
         duringTheSearch();
     }
-
+    drawResultWindow();
 }
 
 void MainMenu::foldersChose() {
@@ -145,3 +157,92 @@ void MainMenu::resizeThreadPool()
 }
 
 
+void MainMenu::loadNewResults()
+{
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    while (!result_queue.empty()) {
+        loaded_results.push_back(result_queue.unwait_pop());
+        std::this_thread::sleep_for(std::chrono::milliseconds(7));
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+}
+
+void TextWindowWithCopy(const char* title, const std::string& content,
+    float width = 0.0f, float height = 0.0f) {
+
+    // Определяем размеры
+    ImVec2 window_size(width, height);
+    if (width <= 0) window_size.x = ImGui::GetIO().DisplaySize.x * 0.8f;
+    if (height <= 0) window_size.y = ImGui::GetIO().DisplaySize.y * 0.6f;
+
+    ImGui::Begin(title, nullptr,
+        ImGuiWindowFlags_HorizontalScrollbar |
+        ImGuiWindowFlags_AlwaysVerticalScrollbar);
+
+    // Кнопка копирования в буфер обмена
+    if (ImGui::Button("Копировать")) {
+        ImGui::SetClipboardText(content.c_str());
+    }
+
+    ImGui::SameLine();
+    ImGui::Text("(%zu символов)", content.size());
+
+    ImGui::Separator();
+
+    // Текст с авто-переносом
+    ImGui::PushTextWrapPos(0.0f); // 0 = до края окна
+
+    // Можно подсветка синтаксиса для кода
+   
+    ImGui::TextWrapped("%s", content.c_str());
+    
+
+    ImGui::PopTextWrapPos();
+
+    ImGui::End();
+}
+
+void MainMenu::drawResultWindow()
+{
+    ImGui::Begin("Результаты");
+    if (ImGui::Button("Очистить")) {
+        loaded_results.clear();
+    }
+
+    loadNewResults();
+    int id1 = 0, id2 = 1;
+    for (auto& el : loaded_results) {
+        ImGui::PushID(id1);
+        ImGui::SeparatorText(el.file.c_str());
+        ImGui::PopID();
+        id1++;
+        for (auto& place : el.places) {
+            ImGui::PushID(id2);
+
+            ImGui::Text("На позициях от %d до %d", place.left, place.right);
+
+            ImGui::SameLine();
+            if(ImGui::Button("Прогрузить контекст")){
+                el.loadContextFor(place);
+            }
+            
+            if (!place.context.empty()) {
+                ImGui::SameLine();
+                if (ImGui::Button("Показать контекст")) {
+                    place.showMe = !place.showMe;
+                }
+            }
+            if (place.showMe) {
+                //ImGui::TextWrapped(place.context.c_str());
+                TextWindowWithCopy(el.file.c_str(), place.context);
+            }
+
+            ImGui::PopID();
+            id2++;
+            ImGui::Separator();
+        }
+
+    }
+
+    ImGui::End();
+}

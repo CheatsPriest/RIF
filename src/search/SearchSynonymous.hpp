@@ -2,7 +2,7 @@
 #include <read/UnifiedReader.hpp>
 #include <configs/SearchConfig.hpp>
 #include <vector>
-#include <search/SearchRawResult.hpp>
+#include <global/GlobalQueues.hpp>
 #include <queue>
 #include <search/synonymous/StemmerPipeline.hpp>
 #include <aho_corasick/TreeWalker.hpp>
@@ -43,12 +43,12 @@ public:
     SearchSynonymous() :config(SearchConfig::get()), settings(SynonymsSettings::get()), stemmer("russian"){
 
     }
-    std::vector<RawResult> search(UnifiedReader& reader) {
+    std::vector<ConcretePlace> search(UnifiedReader& reader) {
         const auto& map = settings.synonyms_per_group;
         reader.setIsLowercase(true);
         clearQueues();
 
-        std::vector<RawResult> result;
+        std::vector<ConcretePlace> result;
         result.reserve(4);
 
         //то что надо обнулить но не загнать в минус
@@ -98,7 +98,7 @@ public:
                     cascadPop();
                 }
                 if (factor == 0) {
-                    result.push_back({ ids_in_file.front(), ids_in_file.back()+reader.getWordSize()});
+                    result.push_back({ ids_in_file.front(), ids_in_file.back()+ word.size() });
                     //если рассинхрон 2 очередей, то значит алгоритм нетедерминированный
                     while (!ids_in_file.empty()) {
                         cascadPop();

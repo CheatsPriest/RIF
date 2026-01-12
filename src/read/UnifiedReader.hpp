@@ -30,6 +30,7 @@ private:
     long long curMaxLen=0;
     size_t position=0;
 
+
     bool loadNextChunkFromBackend()  {
         string& current_chunk = chunk;
         return std::visit([&](auto& r) {
@@ -103,10 +104,10 @@ public:
         // Пока заглушка
     }
 
-    // === РАБОТА СО СЛОВАМИ ===
-
+    ~UnifiedReader() {
+        SearchStats::get().kbytes_read.fetch_add(position/1024*sizeof(char));
+    }
 private:
-    // Пропустить разделители
     
 
 public:

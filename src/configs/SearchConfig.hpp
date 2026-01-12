@@ -136,6 +136,8 @@ public:
 	std::atomic<long long> files_to_process{ 0 };
 	std::atomic<long long> files_processed{ 0 };
 
+	std::atomic<size_t> kbytes_read{ 0 };
+
 	static SearchStats& get() {
 		static SearchStats instance;
 		return instance;
@@ -144,6 +146,7 @@ public:
 		is_inspecting_folders = false;
 		files_to_process = 0;
 		files_processed = 0;
+		kbytes_read = 0;
 	}
 	void checkStatus() {
 		// 1. Читаем атомики

@@ -10,6 +10,7 @@
 class MainMenu {
 
 private:
+
 	std::string search_input;
     std::list<fs::path> inital_folders;
     SearchConfig& config;
@@ -24,6 +25,10 @@ private:
 
 	Core async_core;
 
+
+	std::vector<SearchResult> loaded_results;
+	result_queue_t& result_queue;
+
     void foldersChose();
 	void startSearch();
 	void resizeThreadPool();
@@ -32,8 +37,13 @@ private:
 	void duringTheSearch();
 
 	void drawProgressSearchBar();
+
+	void loadNewResults();
+
+	void drawResultWindow();
 public:
-	MainMenu() : config(SearchConfig::get()), syn_setting(SynonymsSettings::get()), stats(SearchStats::get()), depth(0), respect_registers(false) {
+	MainMenu() : config(SearchConfig::get()), syn_setting(SynonymsSettings::get()), stats(SearchStats::get()), result_queue(ResultQueue::get())
+		, depth(0), respect_registers(false) {
 		NFD_Init();
 		start_point = std::chrono::steady_clock::now();
 		end_point = std::chrono::steady_clock::now();

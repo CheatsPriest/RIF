@@ -1,9 +1,14 @@
 ﻿#include <core/Core.hpp>
 
 void Core::startFoldersWalking() {
-	 inspectorPool_ptr = std::make_unique<std::jthread>([]() {
+	if (inspectorPool_ptr!=nullptr and inspectorPool_ptr->joinable())inspectorPool_ptr->join();
+	inspectorPool_ptr.reset();
+	inspectorPool_ptr = std::make_unique<std::jthread>([]() {
+		std::cout << "Creating inspector" << std::endl;
 		 FoldersInspector inspector;
+		 std::cout << "Incpector created. Calling walk()" << std::endl;
 		 inspector.walk();
+		 std::cout << "Walking finished" << std::endl;
 	});
 }
 
@@ -19,11 +24,12 @@ void Core::startSeacrhing() {
 }
 
 void Core::abortSearching() {
-	if (inspectorPool_ptr == nullptr or stats.process_search.load(std::memory_order_acquire))return;
+	//if (inspectorPool_ptr == nullptr or !stats.process_search.load(std::memory_order_acquire))return;
 
 	stats.process_search.store(false, std::memory_order_release);
-	inspectorPool_ptr->join();
-	searchPool_ptr->restartPool();
+	if(inspectorPool_ptr and inspectorPool_ptr->joinable())inspectorPool_ptr->join();
+	stats.process_search.store(true, std::memory_order_release);
+	//searchPool_ptr->restartPool();
 }
 
 void Core::resizeSearchPool() {

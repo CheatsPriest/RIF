@@ -4,14 +4,17 @@
 #include <nfd.hpp>
 #include <configs/SearchConfig.hpp>
 #include <ImGui/ui/desktop_menu/MainMenu.h>
+#include <global/GlobalQueues.hpp>
+
 class DesktopUi {
 private:
     Window app;
 
     MainMenu menu;
 
+
 public:
-    DesktopUi() : app(1280, 720, "RIF") {
+    DesktopUi() : app(1280, 720, "RIF"){
     }
     void run() {
         float color[3] = { 0.1f, 0.1f, 0.1f };

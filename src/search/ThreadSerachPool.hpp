@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <read/UnifiedReader.hpp>
 #include <configs/SearchConfig.hpp>
 #include <global/GlobalQueues.hpp>
@@ -33,7 +33,9 @@ public:
     }
 
     void restartPool() {
-        resize(size);
+        //resize(size);
+        files_q.clear();
+        result_q.clear();
     }
 
     void resize(size_t new_size);

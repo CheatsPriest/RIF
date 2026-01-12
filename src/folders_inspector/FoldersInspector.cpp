@@ -9,6 +9,7 @@
 
 // Мое
 #include <global/GlobalQueues.hpp>
+#include <ICU/Decoders.hpp>
 
 namespace fs = std::filesystem;
 
@@ -70,8 +71,8 @@ struct FoldersInspector::Impl {
             
         }
 
-        stats.is_inspecting_folders.store(false, std::memory_order::release);
-        std::cout << "\nОбход завершён.\n";
+        stats.is_inspecting_folders.store(false, std::memory_order::seq_cst);
+        std::cout << "\nWalk finished.\n";
         stats.checkStatus();
     }
 
@@ -87,8 +88,9 @@ private:
         if (!isExtensionAllowed(file))return;
         if (memory.testAndRemember(file)) {
             std::cout << "To process: " << file << std::endl;
+            FilesQueues::get().push(file);
+            std::cout << "Pushed" << std::endl;
             stats.files_to_process.fetch_add(1, std::memory_order_release);
-            FilesQueues::get().push(std::move(file.string()));
         }
     }
 
@@ -174,7 +176,10 @@ private:
 
 
 FoldersInspector::FoldersInspector() : pImpl(std::make_unique<Impl>()) {}
-FoldersInspector::~FoldersInspector() = default;
+FoldersInspector::~FoldersInspector() {
+
+    std::cout << "I am off" << std::endl;
+}
 
 void FoldersInspector::walk() {
     pImpl->walk();

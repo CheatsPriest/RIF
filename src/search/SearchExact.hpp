@@ -2,7 +2,7 @@
 #include <read/UnifiedReader.hpp>
 #include <configs/SearchConfig.hpp>
 #include <vector>
-#include <search/SearchRawResult.hpp>
+#include <global/GlobalQueues.hpp>
 #include <iostream>
 
 /*
@@ -39,9 +39,9 @@ public:
     SearchExact() : config(SearchConfig::get()) {
 
     }
-    std::vector<RawResult> search(UnifiedReader& reader) {
+    std::vector<ConcretePlace> search(UnifiedReader& reader) {
 
-        std::vector<RawResult> result;
+        std::vector<ConcretePlace> result;
         result.reserve(4);
 
         size_t i = 0;
@@ -82,12 +82,12 @@ public:
             }
             if (i == len) {
                 if (config.full_words) {
-                    std::cout << "Find on: " << reader.getPos() - len << std::endl;
+                    //std::cout << "Find on: " << reader.getPos() - len << std::endl;
                 }
                 else {
-                    std::cout << "Find on: " << reader.getPos() - len << std::endl;
+                    //std::cout << "Find on: " << reader.getPos() - len << std::endl;
                 }
-                result.push_back({ reader.getPos() - len, reader.getPos() });
+                result.push_back({ reader.getPos() - len, reader.getPos()});
                 i = 0;
             }
         }

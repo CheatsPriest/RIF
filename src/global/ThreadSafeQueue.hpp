@@ -22,6 +22,10 @@ public:
 
     ThreadSafeQueue(size_t capacity = qSize) : capacity(capacity), size(0), work(true) {}
 
+    bool empty() {
+        std::lock_guard< std::mutex> lock(q_mtx);
+        return q.empty();
+    }
     void push(const T& val) {
         std::unique_lock<std::mutex> lock(q_mtx);
         in_cv.wait(lock, [this]() { return size < capacity or !work.load(std::memory_order::acquire); });
@@ -61,6 +65,19 @@ public:
         in_cv.notify_one();
         return true;
     }
+    T unwait_pop() {
+        std::unique_lock<std::mutex> lock(q_mtx);
+       
+        T res = std::move(q.front());
+        q.pop();
+        size--;
+        lock.unlock();
+
+        in_cv.notify_one();
+
+        return res;
+
+    }
     bool isValid()const {
         return work;
     }
@@ -68,6 +85,7 @@ public:
         work.store(false, std::memory_order::release);
         in_cv.notify_all();
         out_cv.notify_all();
+
     }
     void turnOn() {
         work.store(true);

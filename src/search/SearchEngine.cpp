@@ -1,7 +1,7 @@
 ﻿#include <search/SearchEngine.hpp>
+#include <ICU/Decoders.hpp>
 
-
-void mergeTwoVectors(const std::vector<std::vector<RawResult>>& buf_vector, std::vector<RawResult>& final_vector) {
+void mergeTwoVectors(const std::vector<std::vector<ConcretePlace>>& buf_vector, std::vector<ConcretePlace>& final_vector) {
     if (buf_vector.empty()) return;
     if (buf_vector.size() == 1) {
         final_vector = buf_vector[0];
@@ -17,7 +17,7 @@ void mergeTwoVectors(const std::vector<std::vector<RawResult>>& buf_vector, std:
     size_t i = 0, j = 0;
 
     while (i < v1.size() && j < v2.size()) {
-        RawResult current;
+        ConcretePlace current;
 
         if (v1[i] < v2[j]) {
             current = v1[i++];
@@ -37,17 +37,17 @@ void mergeTwoVectors(const std::vector<std::vector<RawResult>>& buf_vector, std:
     while (j < v2.size()) final_vector.push_back(v2[j++]);
 }
 
-void SearchEngine::search(const std::string& filename) {
+void SearchEngine::search(const std::filesystem::path& filename) {
 
-	std::vector<std::vector<RawResult>> buf_vector;
-	std::vector<RawResult> final_vector;
+	std::vector<std::vector<ConcretePlace>> buf_vector;
+	std::vector<ConcretePlace> final_vector;
 	{
-		UnifiedReader reader(filename);
+		UnifiedReader reader(filename.string());
 		auto res1 = searcherExact.search(reader);
 		buf_vector.push_back(std::move(res1));
 	}
 	if (SynonymsSettings::get().use_synonyms and SynonymsSettings::get().synonyms_per_group.size() != 0) {
-		UnifiedReader reader(filename);
+		UnifiedReader reader(filename.string());
 		auto res2 = searchSynonymous.search(reader);
 		buf_vector.push_back(std::move(res2));
 	}
@@ -59,13 +59,25 @@ void SearchEngine::search(const std::string& filename) {
         }
     }
 
-	if (final_vector.size() != 0) {
+    if (!final_vector.empty()) {
+        SearchResult result;
+        
+        auto u8s = filename.u8string();
+        result.file = normalizeU8ToStd(u8s);
+
+        result.file_string_for_reader = filename.string();
+
+        result.places = std::move(final_vector);
+        result_queue.push(std::move(result));
+    }
+
+	/*if (final_vector.size() != 0) {
 		std::cout << "File: " << filename << " === " << final_vector.size() << std::endl;
 		for (auto& pos : final_vector) {
 			UnifiedReader contexter(filename);
-			std::cout << contexter.loadContext(pos.start, pos.end) << std::endl;
+			std::cout << contexter.loadContext(pos.left, pos.right) << std::endl;
 		}
-	}
+	}*/
 
     stats.files_processed.fetch_add(1, std::memory_order::release);
     stats.checkStatus();

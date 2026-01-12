@@ -1,15 +1,15 @@
-#include <search/ThreadSerachPool.hpp>
+﻿#include <search/ThreadSerachPool.hpp>
 
 void ThreadSearchPool::work(std::stop_token stoken) {
     SearchEngine eng;
     while (!stoken.stop_requested()) {
-        std::string file_name;
+        std::filesystem::path file_name;
 
         if (!files_q.pop(file_name))break;
-
-        std::cout << file_name << std::endl;
-        eng.search(file_name);
-
+        else {
+            //std::cout << file_name << std::endl;
+            eng.search(file_name);
+        }
     }
 
 }
@@ -28,16 +28,18 @@ void ThreadSearchPool::resize(size_t new_size) {
 }
 
 void ThreadSearchPool::stopPool() {
-    files_q.turnOff();
-    files_q.clear();
     for (auto& el : pool) {
         el.request_stop();
     }
+
+    files_q.turnOff();
+    
+    
     for (auto& el : pool) {
-        if (el.joinable())el.join();
+        el.join();
     }
     files_q.turnOn();
-
+    files_q.clear();
     result_q.clear();
 }
 
