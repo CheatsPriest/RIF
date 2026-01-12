@@ -87,7 +87,7 @@ public:
             auto it = map.find(word);
 
             if (it != map.end()) {
-                ids_in_file.push(reader.getPos()-reader.getWordSize());
+                ids_in_file.push(reader.getPos()-word.size());
                 size_t group_id = it->second;
                 syn_in_window.push(group_id);
                 syn_in_walk.push(walk_id);

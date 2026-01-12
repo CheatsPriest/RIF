@@ -54,8 +54,13 @@ struct FoldersInspector::Impl {
         while (!folders.empty() and stats.process_search.load(std::memory_order_acquire)) {
             info current = folders.front();
             folders.pop();
+            try {
 
-            processFolder(current.folder, current.cur_depth);
+                processFolder(current.folder, current.cur_depth);
+            }
+            catch (...) {
+
+            }
         }
 
         stats.is_inspecting_folders.store(false, std::memory_order::release);

@@ -9,14 +9,14 @@
 #include <char.hpp>
 #include <unicode/uchar.h>
 
-constexpr static unsigned start_amount_of_search_threads = 1;
+constexpr static int start_amount_of_search_threads = 1;
 
 class SearchConfig {
 public:
 	
-	unsigned amount_of_search_threads = start_amount_of_search_threads;
+	int amount_of_search_threads = start_amount_of_search_threads;
 
-	unsigned int depth = 0;
+	int depth = 0;
 	bool respect_registers = false;
 	bool full_words = false;
 
@@ -33,8 +33,8 @@ public:
 	char_t joker_symbol = '*';
 	char_t substring_symbol = '?';
 
-	long long left_context = 25;
-	long long right_context = 25;
+	int left_context = 25;
+	int right_context = 25;
 
 	std::unordered_set<char_t> separators = { '.', ',', '!', '?', ';', ':', '(', ')',
 					'[', ']', '{', '}', '"', '\'', '-', '_',
@@ -127,7 +127,7 @@ static bool is_separator(char_t c) noexcept {
 struct SearchStats {
 public:
 
-	std::atomic<bool> process_search = { true };
+	std::atomic<bool> process_search = { false };
 	std::atomic<bool> work = { true };
 
 	std::atomic<bool> is_inspecting_folders{ false };
