@@ -39,6 +39,19 @@ public:
         operator()(str);
         return std::move(str);
     }
+
+    void operator()(std::string& utf8_str) const noexcept {
+        if (utf8_str.empty()) return;
+
+        icu::UnicodeString uStr = icu::UnicodeString::fromUTF8(utf8_str.c_str());
+
+        uStr.toLower();
+
+        std::string result;
+        uStr.toUTF8String(result);
+
+        utf8_str = std::move(result);
+    }
 };
 
 std::ostream& operator<<(std::ostream& os, const std::u16string& utf16_str);

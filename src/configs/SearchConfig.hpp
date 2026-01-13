@@ -149,13 +149,17 @@ public:
 		kbytes_read = 0;
 	}
 	void checkStatus() {
+
+		if (is_inspecting_folders.load(std::memory_order_acquire)) {
+			return;
+		}
+
 		// 1. Читаем атомики
-		bool inspecting = is_inspecting_folders.load(std::memory_order_acquire);
 		long long to_do = files_to_process.load(std::memory_order_acquire);
 		long long done = files_processed.load(std::memory_order_acquire);
 
 		// 2. Вердикт: Поиск закончен ТОЛЬКО если инспектор ушел И счетчики сошлись
-		if (!inspecting and to_do == done) {
+		if (to_do == done) {
 			process_search.store(false, std::memory_order_release);
 		}
 	}

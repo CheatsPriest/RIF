@@ -78,7 +78,6 @@ void SearchEngine::search(const std::filesystem::path& filename) {
 			std::cout << contexter.loadContext(pos.left, pos.right) << std::endl;
 		}
 	}*/
-
     stats.files_processed.fetch_add(1, std::memory_order::release);
     stats.checkStatus();
 }

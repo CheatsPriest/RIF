@@ -12,6 +12,7 @@ find_package(imgui CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(nfd CONFIG REQUIRED)
 
+
 # 3. Политики и настройки компилятора
 if(MSVC)
     add_compile_options(/wd4267 /wd4018 /wd4715 /utf-8) # utf-8 важен для ICU

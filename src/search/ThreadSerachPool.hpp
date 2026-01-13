@@ -34,8 +34,8 @@ public:
 
     void restartPool() {
         //resize(size);
-        files_q.clear();
-        result_q.clear();
+        SearchStats::get().files_processed+=files_q.clear();
+        //result_q.clear();
     }
 
     void resize(size_t new_size);

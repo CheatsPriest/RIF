@@ -2,16 +2,21 @@
 
 void ThreadSearchPool::work(std::stop_token stoken) {
     SearchEngine eng;
-    while (!stoken.stop_requested()) {
+
+    while (true) {
+        if (stoken.stop_requested()) {
+            break;
+        }
+
         std::filesystem::path file_name;
 
-        if (!files_q.pop(file_name))break;
-        else {
-            //std::cout << file_name << std::endl;
-            eng.search(file_name);
+        // pop() вернет false если очередь выключена
+        if (!files_q.pop(file_name)) {
+            break;
         }
-    }
 
+        eng.search(file_name);
+    }
 }
 
 void ThreadSearchPool::resize(size_t new_size) {
@@ -28,19 +33,27 @@ void ThreadSearchPool::resize(size_t new_size) {
 }
 
 void ThreadSearchPool::stopPool() {
+    files_q.turnOff();
+    result_q.turnOff();
+
     for (auto& el : pool) {
         el.request_stop();
     }
 
-    files_q.turnOff();
-    
-    
-    for (auto& el : pool) {
-        el.join();
-    }
-    files_q.turnOn();
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
     files_q.clear();
     result_q.clear();
+
+    for (auto& el : pool) {
+        if (el.joinable()) {
+            el.join();
+        }
+    }
+
+    pool.clear();
+    files_q.turnOn();
+    result_q.turnOn();
 }
 
 void ThreadSearchPool::turnOff() {

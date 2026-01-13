@@ -6,7 +6,7 @@
 #include <unordered_set>
 #include <queue>
 #include <algorithm>
-
+#include <char.hpp>
 // Мое
 #include <global/GlobalQueues.hpp>
 #include <ICU/Decoders.hpp>
@@ -42,10 +42,12 @@ struct info {
 struct FoldersInspector::Impl {
     SearchConfig& config;
     SearchStats& stats;
+
+    Lowercaser lowercase;
     void walk() {
 
-        stats.is_inspecting_folders.store(true,std::memory_order::release);
         stats.reset();
+        stats.is_inspecting_folders.store(true,std::memory_order::seq_cst);
         clearFolders();
         memory.clear();
 
@@ -76,19 +78,19 @@ struct FoldersInspector::Impl {
         stats.checkStatus();
     }
 
-    Impl() : config(SearchConfig::get()), stats(SearchStats::get()) {
+    Impl() : config(SearchConfig::get()), stats(SearchStats::get()), file_queue(FilesQueues::get()){
 
     }
 
 private:
     Memorizer memory;
     std::queue<info> folders;
-
+    file_queue_t& file_queue;
     void addFile(const fs::path& file) {
         if (!isExtensionAllowed(file))return;
         if (memory.testAndRemember(file)) {
             std::cout << "To process: " << file << std::endl;
-            FilesQueues::get().push(file);
+            file_queue.push(file);
             std::cout << "Pushed" << std::endl;
             stats.files_to_process.fetch_add(1, std::memory_order_release);
         }
@@ -107,12 +109,11 @@ private:
     bool processFolder(const fs::path& folder_path, unsigned current_depth) {
         try {
             for (const auto& entry : fs::directory_iterator(folder_path)) {
-                if (!stats.process_search.load(std::memory_order_acquire)) {
+                if (!(stats.process_search.load(std::memory_order::seq_cst))) {
                     return false; 
                 }
 
                 const auto& path = entry.path();
-
                 if (entry.is_directory()) {
                     // Проверяем, не игнорируется ли папка
                     if (shouldIgnoreFolder(path.filename().string())) {
@@ -154,23 +155,16 @@ private:
 
     bool isExtensionAllowed(const fs::path& file_path) const {
         if (config.allowed_extensions.empty()) {
-            return true; 
+            return true;
         }
-        std::string ext = file_path.extension().string();
 
-        size_t dot_pos = ext.find_last_of('.');
-        if (dot_pos == std::string::npos) {
+        std::string ext = file_path.extension().string(); 
+        if (ext.empty()) {
             return false; 
         }
+        lowercase(ext);
 
-        {
-            std::string ext_lower = ext;
-            std::transform(ext_lower.begin(), ext_lower.end(),
-                ext_lower.begin(), ::tolower);
-            if (config.allowed_extensions.contains(ext_lower))return true;
-        }
-
-        return false;
+        return config.allowed_extensions.contains(ext);
     }
 };
 
@@ -178,7 +172,6 @@ private:
 FoldersInspector::FoldersInspector() : pImpl(std::make_unique<Impl>()) {}
 FoldersInspector::~FoldersInspector() {
 
-    std::cout << "I am off" << std::endl;
 }
 
 void FoldersInspector::walk() {

@@ -82,18 +82,26 @@ public:
         return work;
     }
     void turnOff() {
-        work.store(false, std::memory_order::release);
+        {
+            std::lock_guard<std::mutex> lock(q_mtx);
+            work.store(false, std::memory_order_release);
+        }
         in_cv.notify_all();
         out_cv.notify_all();
 
     }
     void turnOn() {
-        work.store(true);
+        std::lock_guard<std::mutex> lock(q_mtx);
+        work.store(true, std::memory_order_release);
     }
-    void clear() {
+    long long clear() {
         std::unique_lock<std::mutex> lock(q_mtx);
+        long long i = 0;
         while (!q.empty()) {
             q.pop();
+            size--;
+            i++;
         }
+        return i;
     }
 };
