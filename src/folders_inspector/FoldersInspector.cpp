@@ -89,9 +89,9 @@ private:
     void addFile(const fs::path& file) {
         if (!isExtensionAllowed(file))return;
         if (memory.testAndRemember(file)) {
-            std::cout << "To process: " << file << std::endl;
+            //std::cout << "To process: " << file << std::endl;
             file_queue.push(file);
-            std::cout << "Pushed" << std::endl;
+            //std::cout << "Pushed" << std::endl;
             stats.files_to_process.fetch_add(1, std::memory_order_release);
         }
     }
