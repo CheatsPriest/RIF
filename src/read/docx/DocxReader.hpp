@@ -23,7 +23,6 @@ private:
     // Важно: ICU работает с UChar (обычно это char16_t)
     static std::u16string to_utf16(const std::string& utf8_str) {
         icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(utf8_str);
-        // Извлекаем данные безопасно: копируем из внутреннего буфера ICU в std::u16string
         return std::u16string(reinterpret_cast<const char16_t*>(ustr.getBuffer()), ustr.length());
     }
 

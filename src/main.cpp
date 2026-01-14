@@ -37,8 +37,9 @@ int main() {
     SetConsoleOutputCP(CP_UTF8); // Требует #include <windows.h>
     std::setvbuf(stdout, nullptr, _IOFBF, 1000); // Чтобы вывод не тормозил
 #endif
-
+   
     
+
     /*SynonymsSettings::get().synonyms_per_group = { {u"машин", 0}, {u"пух", 1}};
     LRUSteamming cache(5, 100);
     for (int i = 0; i < 100; i++) {
@@ -54,8 +55,10 @@ int main() {
         std::cout << cache.get(u"пух") << std::endl;
         std::cout << "====SECTION====" << std::endl;
     }*/
+
     DesktopUi ui;
     ui.run();
+
     //std::string path = "C:\\src\\ANSI_2051.txt"; // Укажите свой путь
     //std::u16string content = readAnyFileToUTF16(path);
 
@@ -155,7 +158,7 @@ int main() {
     //    //UnifiedReader reader("C://src/12.docx");
     //    //UnifiedReader reader("C://src/syn.txt");
     //    //UnifiedReader reader("C://src/UTF8.txt");
-    //    UnifiedReader reader("C://src/test.docx");
+    //    UnifiedReader reader("C://src/12.pdf");
     //    /*while (!reader.empty()) {
     //        std::cout << reader.readWord() << std::endl;
     //        reader.moveToNextWord();

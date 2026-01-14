@@ -23,7 +23,7 @@ public:
 	bool full_words = false;
 
 
-	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx"};
+	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx", ".pdf"};
 
 	std::vector<fs::path> initial_folders = { R"(C:\src)", };//"C://testFlood"
 	//std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest)", };//"C://testFlood"

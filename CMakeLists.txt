@@ -12,6 +12,22 @@ find_package(imgui CONFIG REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(nfd CONFIG REQUIRED)
 
+find_package(Freetype REQUIRED)
+find_package(harfbuzz CONFIG REQUIRED)
+find_package(OpenJPEG CONFIG REQUIRED)
+find_package(ZLIB REQUIRED)
+find_package(JPEG REQUIRED)
+# 2.1. Ищем путь к заголовочным файлам
+find_path(MUPDF_INCLUDE_DIR NAMES mupdf/fitz.h)
+
+# 2.2. Ищем саму библиотеку (vcpkg называет её mupdf)
+find_library(MUPDF_LIB NAMES mupdf libmupdf)
+
+# 2.3. Ищем дополнительные зависимости, которые требует mupdf
+find_library(GUMBO_LIB NAMES gumbo)
+find_library(JBIG2DEC_LIB NAMES jbig2dec)
+find_library(OPENJPEG_LIB NAMES openjpeg)
+
 
 # 3. Политики и настройки компилятора
 if(MSVC)
@@ -36,7 +52,7 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
 "src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp" 
 "src/ImGui/Window.hpp" "src/ImGui/Window.cpp"
- "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h" "src/ImGui/ui/desktop_menu/MainMenu.cpp" "src/ICU/Decoders.hpp" "src/ICU/Decoders.cpp" "src/results/SearchResult.hpp" "src/results/SearchResult.cpp")
+ "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h" "src/ImGui/ui/desktop_menu/MainMenu.cpp" "src/ICU/Decoders.hpp" "src/ICU/Decoders.cpp" "src/results/SearchResult.hpp" "src/results/SearchResult.cpp" "src/read/pdf/PdfReader.hpp")
 
 target_compile_definitions(RIF PRIVATE 
     PROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}"
@@ -50,6 +66,7 @@ target_include_directories(RIF PRIVATE
     ${Boost_INCLUDE_DIRS}
     ${IMGUI_INCLUDE_DIR}           # Путь к imgui.h
     ${IMGUI_INCLUDE_DIR}/backends  # Путь к бэкендам (чтобы работало #include "imgui_impl_glfw.h")
+    ${MUPDF_INCLUDE_DIR}
 )
 
 # 7. Конфигурация DuckX (DOCX)
@@ -91,4 +108,13 @@ target_link_libraries(RIF PRIVATE
     glfw             
     opengl32
     nfd::nfd
+    ZLIB::ZLIB
+    JPEG::JPEG
+    Freetype::Freetype 
+    harfbuzz
+    icuuc
+    ${MUPDF_LIB}
+    ${GUMBO_LIB}
+    ${JBIG2DEC_LIB}
+    openjp2 
 )

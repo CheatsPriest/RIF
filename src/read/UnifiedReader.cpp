@@ -9,7 +9,7 @@ reader_v openFile(const std::string& fileName) {
      std::transform(extension.begin(), extension.end(), extension.begin(), ::tolower);
 
      if (extension == ".pdf") {
-         return FileStreamReader(fileName);//заглушка временная
+         return PdfReader(fileName);
      }
      else if (extension == ".docx") {
          return DocxReader(fileName);
