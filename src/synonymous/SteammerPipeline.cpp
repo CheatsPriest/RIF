@@ -1,4 +1,4 @@
-﻿#include <search/synonymous/StemmerPipeline.hpp>
+﻿#include <synonymous/StemmerPipeline.hpp>
 #include <iostream>
 
 

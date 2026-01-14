@@ -47,12 +47,13 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/core/core.hpp" "src/core/Core.cpp"  "src/search/ThreadSerachPool.cpp"
 "src/preproc/Preprocessor.hpp" "src/preproc/Preprocessor.cpp" "src/preproc/PreRegisters.hpp" 
 "src/search/SearchEngine.hpp" "src/search/SearchRawResult.hpp" "src/read/docx/DocxReader.hpp" 
-"src/read/docx/DocxReader.cpp" "src/char.cpp" "src/search/synonymous/Stemmer.hpp" 
-"src/search/synonymous/Stemmer.cpp" "src/preproc/PreSynonyms.hpp" "src/preproc/PreSynonyms.cpp" 
-"src/search/synonymous/StemmerPipeline.hpp" "src/search/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
+"src/read/docx/DocxReader.cpp" "src/char.cpp" 
+"src/synonymous/Stemmer.hpp" 
+"src/synonymous/Stemmer.cpp" "src/preproc/PreSynonyms.hpp" "src/preproc/PreSynonyms.cpp" 
+"src/synonymous/StemmerPipeline.hpp" "src/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
 "src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp" 
 "src/ImGui/Window.hpp" "src/ImGui/Window.cpp"
- "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h" "src/ImGui/ui/desktop_menu/MainMenu.cpp" "src/ICU/Decoders.hpp" "src/ICU/Decoders.cpp" "src/results/SearchResult.hpp" "src/results/SearchResult.cpp" "src/read/pdf/PdfReader.hpp")
+ "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h" "src/ImGui/ui/desktop_menu/MainMenu.cpp" "src/ICU/Decoders.hpp" "src/ICU/Decoders.cpp" "src/results/SearchResult.hpp" "src/results/SearchResult.cpp" "src/read/pdf/PdfReader.hpp" "src/language_deductor/LanguageDeductor.hpp" "src/language_deductor/LanguageDeductor.cpp" "src/synonymous/DeductorStemmer.hpp" "src/synonymous/DeductorStemmer.cpp")
 
 target_compile_definitions(RIF PRIVATE 
     PROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}"

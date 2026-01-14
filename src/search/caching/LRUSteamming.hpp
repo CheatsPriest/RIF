@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-#include <search/synonymous/StemmerPipeline.hpp>
+#include <synonymous/StemmerPipeline.hpp>
 #include <unordered_map>
 #include <char.hpp>
 #include <list>

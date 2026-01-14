@@ -4,14 +4,16 @@
 #include <vector>
 #include <global/GlobalQueues.hpp>
 #include <queue>
-#include <search/synonymous/StemmerPipeline.hpp>
+
+#include <synonymous/DeductorStemmer.hpp>
+
 #include <aho_corasick/TreeWalker.hpp>
 // Продвинутый поиск
 class SearchSynonymous {
 private:
     SearchConfig& config;
     SynonymsSettings& settings;
-    StemmerPipeline stemmer;
+    DeductorStemmer stemmer;
 
     TreeWalker treeWalker;
 
@@ -40,7 +42,7 @@ private:
         }
     }
 public:
-    SearchSynonymous() :config(SearchConfig::get()), settings(SynonymsSettings::get()), stemmer("russian"){
+    SearchSynonymous() :config(SearchConfig::get()), settings(SynonymsSettings::get()){
 
     }
     std::vector<ConcretePlace> search(UnifiedReader& reader) {

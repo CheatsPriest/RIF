@@ -1,4 +1,4 @@
-﻿#include <search/synonymous/Stemmer.hpp>
+﻿#include <synonymous/Stemmer.hpp>
 
 
 std::string Stemmer::stem(std::string&& word_cp1251) {

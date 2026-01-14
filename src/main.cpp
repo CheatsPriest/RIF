@@ -7,7 +7,7 @@
 #include <core/Core.hpp>
 
 #include <fstream>
-#include <search/synonymous/StemmerPipeline.hpp>
+#include <synonymous/DeductorStemmer.hpp>
 
 #include <preproc/PreSynonyms.hpp>
 
@@ -38,7 +38,17 @@ int main() {
     std::setvbuf(stdout, nullptr, _IOFBF, 1000); // Чтобы вывод не тормозил
 #endif
    
-    
+
+    /*DeductorStemmer stem;
+    std::cout << stem.stem_lowercased(u"helicopter") << std::endl;
+    std::cout << stem.stem_lowercased(u"helicopters") << std::endl;
+    std::cout << stem.stem_lowercased(u"вода") << std::endl;
+    std::cout << stem.stem_lowercased(u"бойлерный") << std::endl;
+    std::cout << stem.stem_lowercased(u"денег") << std::endl;
+    std::cout << stem.stem_lowercased(u"деньги") << std::endl;
+    std::cout << stem.stem_lowercased(u"большой") << std::endl;
+    std::cout << stem.stem_lowercased(u"huge") << std::endl;
+    std::cout << stem.stem_lowercased(u"огромный") << std::endl;*/
 
     /*SynonymsSettings::get().synonyms_per_group = { {u"машин", 0}, {u"пух", 1}};
     LRUSteamming cache(5, 100);

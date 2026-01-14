@@ -12,7 +12,7 @@ void MainMenu::optionsMenu()
     ImGui::InputText("Поиск...", &search_input);
 
     ImGui::Checkbox("Учитывать регистр?", &config.respect_registers);
-    ImGui::Checkbox("Учитывать синонимы?", &syn_setting.use_synonyms);
+    ImGui::Checkbox("Искать по смыслу слов?", &syn_setting.use_synonyms);
 
     ImGui::SliderInt("Глубина поиска файлов", &config.depth, 0, 250);
 

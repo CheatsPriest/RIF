@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include <search/synonymous/Stemmer.hpp>
+#include <synonymous/Stemmer.hpp>
 
 class StemmerPipeline {
 private:
@@ -9,7 +9,7 @@ private:
     std::string utf8_buf;       
     std::u16string utf16_buf;
 public:
-    StemmerPipeline(std::string_view language) : steammer(language) {
+    StemmerPipeline(std::string_view language = "russian") : steammer(language) {
 
     }
     string stem(string&& word);

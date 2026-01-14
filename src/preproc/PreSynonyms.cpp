@@ -1,5 +1,5 @@
 ﻿#include <preproc/PreSynonyms.hpp>
-#include <search/synonymous/StemmerPipeline.hpp>
+#include <synonymous/DeductorStemmer.hpp>
 #include <configs/SearchConfig.hpp>
 
 #include <filesystem>
@@ -13,7 +13,7 @@
 
 namespace fs = std::filesystem;
 
-StemmerPipeline stem("russian");
+DeductorStemmer stem;
 
 class ProcessWordsFromTemplateForSynonyms {
     SearchConfig& search_config;
@@ -55,7 +55,7 @@ public:
 
 class SynonymsReader {
     SynonymsSettings& settings;
-    StemmerPipeline stem;
+    DeductorStemmer stem;
 
     struct group_info {
         long long count;
@@ -66,7 +66,7 @@ class SynonymsReader {
     size_t free_group_id;
 
 public:
-    SynonymsReader() : settings(SynonymsSettings::get()), stem("russian") {}
+    SynonymsReader() : settings(SynonymsSettings::get()), free_group_id(0){}
 
     void operator()(const std::string& folder_path = "C:\\testFlood\\synonyms") {
         free_group_id = 0;
@@ -84,7 +84,7 @@ private:
         for (const auto& lang_dir : fs::directory_iterator(folder_path)) {
             if (!fs::is_directory(lang_dir)) continue;
 
-            stem.changeLanguage(lang_dir.path().filename().string());
+
 
             for (const auto& file : fs::directory_iterator(lang_dir.path())) {
                 if (file.path().extension() != ".txt") continue;
