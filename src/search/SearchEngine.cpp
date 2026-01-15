@@ -42,12 +42,12 @@ void SearchEngine::search(const std::filesystem::path& filename) {
 	std::vector<std::vector<ConcretePlace>> buf_vector;
 	std::vector<ConcretePlace> final_vector;
 	{
-		UnifiedReader reader(filename.string());
+		UnifiedReader reader(filename.string(), !config.respect_registers);
 		auto res1 = searcherExact.search(reader);
 		buf_vector.push_back(std::move(res1));
 	}
 	if (SynonymsSettings::get().use_synonyms and SynonymsSettings::get().synonyms_per_group.size() != 0) {
-		UnifiedReader reader(filename.string());
+		UnifiedReader reader(filename.string(), true);
 		auto res2 = searchSynonymous.search(reader);
 		buf_vector.push_back(std::move(res2));
 	}

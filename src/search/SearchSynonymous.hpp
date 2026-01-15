@@ -77,7 +77,7 @@ public:
             
             while (!reader.empty()) {
                 char_t c = reader.readSymbol();
-                if (is_separator(c))break;
+                if (!isKnownSymbol(c))break;
                 treeWalker.walk(c);
                 reader.moveToSymbol(1);
             }

@@ -91,13 +91,13 @@ private:
 
                 // Первый проход: считаем частоты и создаем ID групп
                 {
-                    UnifiedReader reader(file.path().string());
+                    UnifiedReader reader(file.path().string(), true);
                     form_groups(reader);
                 }
 
                 // Второй проход: заполняем карту синонимов
                 {
-                    UnifiedReader reader(file.path().string());
+                    UnifiedReader reader(file.path().string(), true);
                     processGroups(reader);
                 }
             }
@@ -106,7 +106,7 @@ private:
     }
 
     // Вспомогательная функция для чтения ID (так как UnifiedReader читает слова)
-    size_t parseId(const string& word) {
+    size_t parseId(string_view word) {
         if (word.empty()) return 0;
         try {
             // Конвертируем UTF-16 обратно в UTF-8 для std::stoull
@@ -119,14 +119,14 @@ private:
 
     void form_groups(UnifiedReader& reader) {
         while (!reader.empty()) {
-            string id_str = reader.readWord();
+            auto id_str = reader.readWordOld();
             if (id_str.empty()) break;
 
             size_t group_id = parseId(id_str);
-            string word = reader.readWord();
+            auto word = reader.readWordOld();
             if (word.empty()) continue;
 
-            word = stem.stem(std::move(word));
+            word = stem.stem_lowercased(word);
 
             auto it = settings.words_from_template.find(word);
             if (it != settings.words_from_template.end()) {
@@ -144,17 +144,17 @@ private:
 
     void processGroups(UnifiedReader& reader) {
         while (!reader.empty()) {
-            string id_str = reader.readWord();
+            auto id_str = reader.readWordOld();
             if (id_str.empty()) break;
 
             size_t group_id = parseId(id_str);
-            string word = reader.readWord();
+            auto word = reader.readWordOld();
             if (word.empty()) continue;
 
             auto it = temp_groups.find(group_id);
             if (it != temp_groups.end()) {
                 settings.synonyms_per_group.insert({
-                    stem.stem(std::move(word)),
+                    stem.stem_lowercased(word),
                     it->second.future_id
                     });
             }

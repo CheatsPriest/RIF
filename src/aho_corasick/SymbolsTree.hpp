@@ -24,8 +24,9 @@ struct node {
 };
 #else
 struct node {
+
 	bool is_end_of_stem = false;
-	std::vector<std::pair<char_t, std::unique_ptr<node>>> childs;
+	std::vector<size_t> childs;
 
 	node* get(char_t c) {
 		for (auto& child : childs) {

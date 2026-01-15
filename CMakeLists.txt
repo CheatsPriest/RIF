@@ -35,6 +35,15 @@ if(MSVC)
     if(POLICY CMP0141)
         cmake_policy(SET CMP0141 NEW)
     endif()
+
+    # Включаем генерацию PDB для Release сборок
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Zi")
+    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /DEBUG /OPT:REF /OPT:ICF")
+    
+    # И на всякий случай для RelWithDebInfo (хотя там должно быть по умолчанию)
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Zi")
+    set(CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO "${CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO} /DEBUG")
+
 endif()
 
 # 4. Список файлов (для удобства поддержки)

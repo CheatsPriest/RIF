@@ -9,6 +9,7 @@
 #include <algorithm>
 
 #include <configs/SearchConfig.hpp>
+#include <language_deductor/LanguageDeductor.hpp>
 
 
 reader_v openFile(const std::string& fileName);
@@ -17,19 +18,18 @@ class UnifiedReader {
 private:
     reader_v reader;
     SearchConfig& config;
-    size_t prev_word_size;
 
     Lowercaser lowercaser;
 
     string chunk;
     bool isEmpty = false;
 
-    bool is_lowercase=false;
+    bool is_lowercase=true;
 
     long long curLen=0;
     long long curMaxLen=0;
     size_t position=0;
-
+    string local_word;
 
     bool loadNextChunkFromBackend()  {
         string& current_chunk = chunk;
@@ -54,32 +54,31 @@ private:
 public:
     
     // Конструкторы
-    explicit UnifiedReader(const std::string& filename)
-        : reader(openFile(filename)), config(SearchConfig::get()), prev_word_size(0)
-    , curLen(0), curMaxLen(0), position(0){
+    explicit UnifiedReader(const std::string& filename, bool is_lowercased)
+        : reader(openFile(filename)), config(SearchConfig::get())
+    , curLen(0), curMaxLen(0), position(0), is_lowercase(is_lowercased){
         loadNextChunk();
         is_lowercase = !config.respect_registers;
+        local_word.reserve(128);
     }
 
-    explicit UnifiedReader(reader_v&& r)
-        : reader(std::move(r)), config(SearchConfig::get() ), prev_word_size(0)
-        , curLen(0), curMaxLen(0), position(0) {
+    explicit UnifiedReader(reader_v&& r, bool is_lowercased)
+        : reader(std::move(r)), config(SearchConfig::get())
+        , curLen(0), curMaxLen(0), position(0), is_lowercase(is_lowercased) {
         loadNextChunk();
         is_lowercase = !config.respect_registers;
+        local_word.reserve(128);
     }
     void setIsLowercase(bool value) {
         is_lowercase = value;
     }
-    inline char_t readSymbol()  {
-
+    inline char_t readSymbol() noexcept{
         return chunk[curLen];
-
     }
-    inline void moveToSymbol(long long dif)  {
+    inline void moveToSymbol(long long dif) noexcept {
         position += dif;
         curLen += dif;
 
-        // Позволяем компилятору встроить "быстрый путь"
         if ((curLen >= curMaxLen)) {
             handleBufferOverflow();
         }
@@ -89,21 +88,12 @@ public:
     size_t getPos() const  {
         return position;
     }
-    size_t getWordSize() const  {
-        return prev_word_size;
-    }
-    
     bool empty()  {
         return isEmpty;
     }
-
-
     void rewind() {
-        // Перемотка в начало - если нет специального метода,
-        // закрываем и открываем заново или ищем способ сбросить позицию
-        // Пока заглушка
+        
     }
-
     ~UnifiedReader() {
         SearchStats::get().kbytes_read.fetch_add(position/1024*sizeof(char));
     }
@@ -112,25 +102,29 @@ private:
 
 public:
     void skipSeparators()  {
-        while (!empty() && is_separator(readSymbol())) {
+        while (!empty() and !isKnownSymbol(readSymbol())) {
+            moveToSymbol(1);
+        }
+    }
+    void skipSeparatorsOld() {
+        while (!empty() and is_separator(readSymbol())) {
             moveToSymbol(1);
         }
     }
     // Прочитать слово
-    string readWord() {
+    string_view readWord() {
         if (empty()) return {};
 
         skipSeparators();
         if (empty()) return {};
 
-        string res;
-        res.reserve(16);//средняя длина слов
-        while (!empty() && !is_separator(readSymbol())) {
-            res += readSymbol();
+        local_word.clear();
+        while (!empty() and isKnownSymbol(readSymbol())) {
+            local_word += readSymbol();
             moveToSymbol(1);
         }
-        prev_word_size = res.size();
-        return (std::move(res));
+        
+        return local_word;
     }
 
     // Перейти к следующему слову
@@ -138,6 +132,27 @@ public:
         skipSeparators();
         return !empty();
     }
+
+    string_view readWordOld() {
+        if (empty()) return {};
+
+        skipSeparatorsOld();
+        if (empty()) return {};
+
+        local_word.clear();
+        while (!empty() and !is_separator(readSymbol())) {
+            local_word += readSymbol();
+            moveToSymbol(1);
+        }
+        return local_word;
+    }
+
+    // Перейти к следующему слову
+    bool moveToNextWordOld() {
+        skipSeparatorsOld();
+        return !empty();
+    }
+
     string loadContext(long long left_pos, long long right_pos) {
         long long left = (left_pos > config.left_context) ? left_pos - config.left_context : 0ll;
         

@@ -74,7 +74,7 @@ struct SynonymsSettings {
 	bool use_synonyms = true;
 	size_t max_synonym_distance = 5;
 
-	std::unordered_map<string, long long> words_from_template;
+	std::unordered_map<string, long long, StringViewHash, std::equal_to<>> words_from_template;
 	/*
 	Синонимы для ключевых терминов
 	 Очистить после обработки по группам
