@@ -12,7 +12,7 @@
 #include <language_deductor/LanguageDeductor.hpp>
 
 
-reader_v openFile(const std::string& fileName);
+reader_v openFile(const std::filesystem::path& fileName);
 
 class UnifiedReader {
 private:
@@ -54,11 +54,10 @@ private:
 public:
     
     // Конструкторы
-    explicit UnifiedReader(const std::string& filename, bool is_lowercased)
+    explicit UnifiedReader(const std::filesystem::path& filename, bool is_lowercased)
         : reader(openFile(filename)), config(SearchConfig::get())
     , curLen(0), curMaxLen(0), position(0), is_lowercase(is_lowercased){
         loadNextChunk();
-        is_lowercase = !config.respect_registers;
         local_word.reserve(128);
     }
 
@@ -66,7 +65,6 @@ public:
         : reader(std::move(r)), config(SearchConfig::get())
         , curLen(0), curMaxLen(0), position(0), is_lowercase(is_lowercased) {
         loadNextChunk();
-        is_lowercase = !config.respect_registers;
         local_word.reserve(128);
     }
     void setIsLowercase(bool value) {
@@ -166,6 +164,15 @@ public:
             moveToSymbol(1);
         }
         
-        return (std::move(context));
+        return context;
     }
+    
+    
+    inline string_view getChunk() const noexcept {
+        return string_view(chunk.begin()+ curLen, chunk.end());
+    }
+    inline void refreshChunk() noexcept {
+        moveToSymbol(curMaxLen);
+    }
+
 };

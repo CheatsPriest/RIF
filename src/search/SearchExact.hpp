@@ -34,9 +34,15 @@
 class SearchExact {
 private:
     SearchConfig& config;
+    char_t joker_symbol;
+    char_t substr_symbol;
     Lowercaser lower_case;
+
+    string_view cur_chunk;
+
+
 public:
-    SearchExact() : config(SearchConfig::get()) {
+    SearchExact() : config(SearchConfig::get()), joker_symbol(config.joker_symbol), substr_symbol(config.substring_symbol){
 
     }
     std::vector<ConcretePlace> search(UnifiedReader& reader) {
@@ -44,53 +50,82 @@ public:
         std::vector<ConcretePlace> result;
         result.reserve(4);
 
-        size_t i = 0;
         size_t len = config.exact_templ.size();
         const auto& templ = config.exact_templ;
+        string_view view;
+        
+
         while (!reader.empty()) {
-            const char_t cur = config.respect_registers? reader.readSymbol() : lower_case(reader.readSymbol());
             
-            //std::cout << cur << std::endl;
-            if (templ[i] == config.joker_symbol) {
-                i++;
-                reader.moveToSymbol(1);
-            }
-            else if (templ[i] == config.substring_symbol) {
-                if (templ[0] == cur) {
-                    i = 0;
-                }
-                else if (templ[i + 1] == cur) {
-                    i+=2;
-                    reader.moveToSymbol(1);
-                }
-                else {
-                    reader.moveToSymbol(1);
+            view = reader.getChunk();
+            size_t pos = view.find(templ.front());
+            
+
+            if (pos != string_view::npos) {
+                reader.moveToSymbol(pos);
+
+                string_view stream = reader.getChunk();
+                size_t i = 0;
+                size_t pos_stream = 0;
+                
+                while (!reader.empty()) {
+                    char_t cur;
+                    if (pos_stream < stream.size()) {
+                        cur = stream[pos_stream];
+                    }
+                    else {
+                        stream = reader.getChunk();
+                        pos_stream = 0;
+                        continue;
+                    }
+
+
+                    //std::cout << cur << std::endl;
+                    if (templ[i] == joker_symbol) {
+                        i++;
+                        pos_stream++;
+                        reader.moveToSymbol(1);
+                    }
+                    //else if (templ[i] == substr_symbol) {
+                    //    if (templ[0] == cur) {
+                    //        //выход
+                    //        break;
+                    //    }
+                    //    else if (templ[i + 1] == cur) {
+                    //        i += 2;
+                    //        reader.moveToSymbol(1);
+                    //    }
+                    //    else {
+                    //        reader.moveToSymbol(1);
+                    //    }
+                    //}
+                    else {
+                        if (templ[i] == cur) {
+                            i++;
+                            pos_stream++;
+                        }
+                        else {
+                            reader.moveToSymbol(i+1);
+                            view = reader.getChunk();
+                            //Выход
+                            break;
+                        }
+                    }
+                    if (i == len) {
+                        reader.moveToSymbol(len);
+                        result.push_back({ reader.getPos() - len, reader.getPos() });
+                        view = reader.getChunk();
+                        break;
+                    }
                 }
             }
             else {
-                if (templ[i] == cur) {
-                    i++;
-                    reader.moveToSymbol(1);
-                }
-                else if(templ[i] != cur and i!=0){
-                    i = 0;
-                    reader.moveToSymbol(1);
-                }
-                else {
-                    reader.moveToSymbol(1);
-                }
-            }
-            if (i == len) {
-                if (config.full_words) {
-                    //std::cout << "Find on: " << reader.getPos() - len << std::endl;
-                }
-                else {
-                    //std::cout << "Find on: " << reader.getPos() - len << std::endl;
-                }
-                result.push_back({ reader.getPos() - len, reader.getPos()});
-                i = 0;
+                reader.refreshChunk();
+                view = reader.getChunk();
             }
         }
+
+        
 
 
         return result;
