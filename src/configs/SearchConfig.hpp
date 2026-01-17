@@ -21,6 +21,7 @@ public:
 	int depth = 0;
 	bool respect_registers = false;
 	bool full_words = false;
+	bool use_ocr_for_pdf = true;
 
 
 	std::unordered_set<std::string> allowed_extensions = { ".txt", ".md", ".cpp", ".c", ".hpp", ".h", ".docx", ".pdf"};
@@ -29,8 +30,8 @@ public:
 	//std::vector<std::string> initial_folders = { R"(C:\Users\kuzne\Desktop\charshtest)", };//"C://testFlood"
 	std::unordered_set<std::string> ignored_folders = { ".git", "out" };
 
-	string raw_templ = u"большие деньги";//неотформатированный 
-	string exact_templ = u"";//отформатированный, например если игнорить регистр, то понижаем
+	string raw_templ = u"text";//неотформатированный 
+	string exact_templ = u"text";//отформатированный, например если игнорить регистр, то понижаем
 
 	char_t joker_symbol = '*';
 	char_t substring_symbol = '?';
@@ -129,14 +130,16 @@ static bool is_separator(char_t c) noexcept {
 struct SearchStats {
 public:
 
-	std::atomic<bool> process_search = { false };
-	std::atomic<bool> work = { true };
+	alignas(64) std::atomic<bool> process_search = { false };
+	alignas(64) std::atomic<bool> work = { true };
 
-	std::atomic<bool> is_inspecting_folders{ false };
-	std::atomic<long long> files_to_process{ 0 };
-	std::atomic<long long> files_processed{ 0 };
+	alignas(64) std::atomic<bool> is_inspecting_folders{ false };
+	alignas(64) std::atomic<long long> files_to_process{ 0 };
+	alignas(64) std::atomic<long long> files_processed{ 0 };
 
-	std::atomic<size_t> kbytes_read{ 0 };
+	alignas(64) std::atomic<size_t> kbytes_read{ 0 };
+
+	alignas(64) std::atomic<size_t> in_ocr_process{ 0 };
 
 	static SearchStats& get() {
 		static SearchStats instance;
@@ -154,12 +157,15 @@ public:
 			return;
 		}
 
-		// 1. Читаем атомики
+		// 1. Читаем атомики поиска
 		long long to_do = files_to_process.load(std::memory_order_acquire);
 		long long done = files_processed.load(std::memory_order_acquire);
 
-		// 2. Вердикт: Поиск закончен ТОЛЬКО если инспектор ушел И счетчики сошлись
-		if (to_do == done) {
+		// 2. Читаем OCR атомики
+		size_t in_ocr = in_ocr_process.load(std::memory_order_acquire);
+
+		// 3. Вердикт: Поиск закончен ТОЛЬКО если инспектор ушел И счетчики сошлись и OCR не работает
+		if (to_do == done and in_ocr == 0) {
 			process_search.store(false, std::memory_order_release);
 		}
 	}

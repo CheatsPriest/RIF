@@ -17,6 +17,9 @@ find_package(harfbuzz CONFIG REQUIRED)
 find_package(OpenJPEG CONFIG REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(JPEG REQUIRED)
+
+find_package(Leptonica REQUIRED)
+find_package(Tesseract CONFIG REQUIRED)
 # 2.1. Ищем путь к заголовочным файлам
 find_path(MUPDF_INCLUDE_DIR NAMES mupdf/fitz.h)
 
@@ -62,7 +65,7 @@ add_executable (RIF "src/main.cpp" "src/configs/SearchConfig.hpp"
 "src/synonymous/StemmerPipeline.hpp" "src/synonymous/SteammerPipeline.cpp" "src/search/SearchSynonymous.hpp" 
 "src/search/SearchEngine.cpp" "src/read/binary/FileStreamReader.hpp" "src/read/binary/BinaryReader.hpp" 
 "src/ImGui/Window.hpp" "src/ImGui/Window.cpp"
- "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h" "src/ImGui/ui/desktop_menu/MainMenu.cpp" "src/ICU/Decoders.hpp" "src/ICU/Decoders.cpp" "src/results/SearchResult.hpp" "src/results/SearchResult.cpp" "src/read/pdf/PdfReader.hpp" "src/language_deductor/LanguageDeductor.hpp" "src/language_deductor/LanguageDeductor.cpp" "src/synonymous/DeductorStemmer.hpp" "src/synonymous/DeductorStemmer.cpp")
+ "src/ImGui/ui/DesktopUi.hpp" "src/search/caching/LRUSteamming.hpp" "src/aho_corasick/SymbolsTree.hpp" "src/aho_corasick/TreeWalker.hpp" "src/ImGui/ui/desktop_menu/MainMenu.h" "src/ImGui/ui/desktop_menu/MainMenu.cpp" "src/ICU/Decoders.hpp" "src/ICU/Decoders.cpp" "src/results/SearchResult.hpp" "src/results/SearchResult.cpp" "src/read/pdf/PdfReader.hpp" "src/language_deductor/LanguageDeductor.hpp" "src/language_deductor/LanguageDeductor.cpp" "src/synonymous/DeductorStemmer.hpp" "src/synonymous/DeductorStemmer.cpp" "src/ocr/MutexMap.hpp" "src/ocr/OcrManager.hpp" "src/ocr/OcrReader.hpp" "src/ocr/OcrManager.cpp")
 
 target_compile_definitions(RIF PRIVATE 
     PROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}"
@@ -77,6 +80,8 @@ target_include_directories(RIF PRIVATE
     ${IMGUI_INCLUDE_DIR}           # Путь к imgui.h
     ${IMGUI_INCLUDE_DIR}/backends  # Путь к бэкендам (чтобы работало #include "imgui_impl_glfw.h")
     ${MUPDF_INCLUDE_DIR}
+    ${Tesseract_INCLUDE_DIRS} 
+    ${Leptonica_INCLUDE_DIRS}
 )
 
 # 7. Конфигурация DuckX (DOCX)
@@ -127,4 +132,6 @@ target_link_libraries(RIF PRIVATE
     ${GUMBO_LIB}
     ${JBIG2DEC_LIB}
     openjp2 
+    Tesseract::libtesseract
+    ${Leptonica_LIBRARIES}
 )

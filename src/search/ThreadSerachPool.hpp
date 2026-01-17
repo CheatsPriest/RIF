@@ -3,7 +3,6 @@
 #include <configs/SearchConfig.hpp>
 #include <global/GlobalQueues.hpp>
 #include <search/SearchEngine.hpp>
-
 #include <vector>
 #include <thread>
 
@@ -15,14 +14,14 @@ private:
     file_queue_t& files_q;
     result_queue_t& result_q;
     SearchConfig& config;
-
     size_t size;
     std::vector<std::jthread> pool;
 
     void work(std::stop_token stoken);
 
 public:
-    ThreadSearchPool(size_t size) : size(size), files_q(FilesQueues::get()), result_q(ResultQueue::get()), config(SearchConfig::get()) {
+    ThreadSearchPool(size_t size) : size(size), files_q(FilesQueues::get()), result_q(ResultQueue::get()), 
+        config(SearchConfig::get()){
         pool.reserve(size);
 
         for (size_t i = 0; i < size; i++) {
@@ -30,6 +29,7 @@ public:
                 this->work(token);  
                 });
         }
+        
     }
 
     void restartPool() {

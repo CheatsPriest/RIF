@@ -28,8 +28,12 @@
 #include <ImGui/ui/DesktopUi.hpp>
 
 
+#include <tesseract/baseapi.h>
+#include <leptonica/allheaders.h>
 
+#include <ocr/OcrReader.hpp>
 
+#include <ocr/OcrManager.hpp>
 
 int main() {
 
@@ -38,7 +42,24 @@ int main() {
     std::setvbuf(stdout, nullptr, _IOFBF, 1000); // Чтобы вывод не тормозил
 #endif
    
+    /*OcrManager& manager = OcrManager::get();
+    std::string str = "C:/src/picture/picture.pdf";
+    manager.push(str);
+    int a;
+    std::cin >> a;
+    manager.restart();
 
+    str = "C:/src/picture/1.pdf";
+    manager.push(str);
+    str = "C:/src/picture/2.pdf";
+    manager.push(str);*/
+    
+    /*OcrReader reader();
+    string chunk;
+    while (reader.readNextChunk(chunk)) {
+        std::cout << chunk << std::endl;
+    }*/
+    
     /*DeductorStemmer stem;
     std::cout << stem.stem_lowercased(u"helicopter") << std::endl;
     std::cout << stem.stem_lowercased(u"helicopters") << std::endl;

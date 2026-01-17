@@ -13,6 +13,7 @@ void MainMenu::optionsMenu()
 
     ImGui::Checkbox("Учитывать регистр?", &config.respect_registers);
     ImGui::Checkbox("Искать по смыслу слов?", &syn_setting.use_synonyms);
+    ImGui::Checkbox("Использовать OCR для pdf?(ведет к долгому поиску)", &config.use_ocr_for_pdf);
 
     ImGui::SliderInt("Глубина поиска файлов", &config.depth, 0, 250);
 
@@ -60,6 +61,8 @@ void MainMenu::drawProgressSearchBar()
 {
     int processed = stats.files_processed.load(std::memory_order_relaxed);
     int total = stats.files_to_process.load(std::memory_order_relaxed);
+    int in_ocr = stats.in_ocr_process.load(std::memory_order_relaxed);
+
 
     float progress = (total > 0) ? (float)processed / (float)total : 0.0f;
     
@@ -68,6 +71,8 @@ void MainMenu::drawProgressSearchBar()
 
     ImGui::Text("Search progress:");
     ImGui::ProgressBar(progress, ImVec2(-1.0f, 0.0f), overlay_buf);
+
+    ImGui::Text("Файлов обрабатывается OCR: %d", in_ocr);
 }
 
 

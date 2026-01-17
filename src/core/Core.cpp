@@ -24,9 +24,13 @@ void Core::abortSearching() {
 	//if (inspectorPool_ptr == nullptr or !stats.process_search.load(std::memory_order_acquire))return;
 
 	stats.process_search.store(false, std::memory_order::seq_cst);
-	if(inspectorPool_ptr and inspectorPool_ptr->joinable())inspectorPool_ptr->join();
+	if (inspectorPool_ptr and inspectorPool_ptr->joinable())inspectorPool_ptr->join();
 	stats.process_search.store(true, std::memory_order::seq_cst);
 	searchPool_ptr->restartPool();
+	ocr_manager.restart();
+	
+
+
 }
 
 void Core::resizeSearchPool() {
