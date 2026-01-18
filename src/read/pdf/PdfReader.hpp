@@ -87,5 +87,7 @@ public:
             fz_drop_context(ctx);
         }
     }
-	
+    void rewindImpl() {
+        cur_page = 0;
+    }
 };

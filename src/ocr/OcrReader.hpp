@@ -64,7 +64,7 @@ public:
     bool readNextChunkImpl(std::u16string& chunk) {
         if (!has_text or cur_page >= page_count or !ocr_api_ptr) return false;
         buffer.clear();
-
+        fz_purge_glyph_cache(ctx);
         // Цикл идет, пока есть страницы И пока мы не набрали достаточно текста
         for (; cur_page < page_count && buffer.size() < CHUNK_SIZE; ) {
             fz_page* page = nullptr;
@@ -85,19 +85,26 @@ public:
 
                 // Если текста на слое нет (меньше 10 символов) — включаем OCR
                 if (page_text.length() < 10) {
-                    // Рендерим страницу (fz_scale(2,2) увеличит DPI для лучшего распознавания)
                     fz_matrix upscl = fz_scale(2, 2);
+                    // Используем fz_device_rgb(ctx) аккуратно
                     fz_pixmap* pix = fz_new_pixmap_from_page(ctx, page, upscl, fz_device_rgb(ctx), 0);
 
-                    ocr_api_ptr->SetImage(pix->samples, pix->w, pix->h, pix->n, pix->w * pix->n);
-                    char* ocr_text = nullptr;
-                    ocr_text = ocr_api_ptr->GetUTF8Text();
+                    if (pix) {
+                        ocr_api_ptr->SetImage(pix->samples, pix->w, pix->h, pix->n, pix->w * pix->n);
 
-                    if (ocr_text) {
-                        buffer += ocr_text;
-                        delete[] ocr_text;
+                        char* ocr_text = ocr_api_ptr->GetUTF8Text();
+                        if (ocr_text) {
+                            buffer += ocr_text;
+                            delete[] ocr_text; // Для Tesseract 5.x это корректно
+                        }
+
+                        // КРИТИЧНО: Освобождаем внутренние буферы Tesseract после обработки страницы
+                        ocr_api_ptr->Clear();
+
+                        fz_drop_pixmap(ctx, pix);
                     }
-                    fz_drop_pixmap(ctx, pix);
+
+
                 }
                 else {
                     buffer += page_text;
@@ -114,6 +121,21 @@ public:
             }
             fz_catch(ctx) {
                 cur_page++; 
+            }
+            if (cur_page % 25) {
+                ocr_api_ptr->End();
+                ocr_api_ptr.reset();
+                //OCR
+                auto path = std::string(PROJECT_PATH) + "/assets/tessdata";
+                // --- Инициализация Tesseract ---
+                ocr_api_ptr = std::make_unique<tesseract::TessBaseAPI>();
+                // NULL использует TESSDATA_PREFIX, "rus+eng" для двуязычного поиска
+                if (ocr_api_ptr->Init(path.c_str(), "rus+eng")) {
+                    std::cerr << "OCR Init Failed" << std::endl;
+                    ocr_api_ptr.reset(nullptr);
+                }
+                else
+                    ocr_api_ptr->SetPageSegMode(tesseract::PSM_AUTO);
             }
         }
 

@@ -18,7 +18,7 @@ enum class OcrCacheState : uint16_t
 };
 
 struct CacheEntry {
-	std::string source_file_path;
+	std::filesystem::path source_file_path;
 	std::string cache_file_path;
 	OcrCacheState state = OcrCacheState::IN_PROGRESS;
 };
@@ -28,15 +28,7 @@ private:
 	MutexMap<size_t, CacheEntry>  map;
 	SearchStats& stats;
 
-	size_t get_cache_key(const std::string& path) {
-		auto fs_path = std::filesystem::path(path);
-		auto size = std::filesystem::file_size(fs_path);
-		auto mtime = std::filesystem::last_write_time(fs_path).time_since_epoch().count();
-		auto name = fs_path.filename().string();
-
-		std::string raw_key = std::format("{}|{}|{}", name, size, mtime);
-		return std::hash<std::string>{}(raw_key);
-	}
+	size_t get_cache_key(const std::filesystem::path& fs_path);
 
 	ThreadSafeQueue<size_t> to_process;
 	file_queue_t& files_queue;
@@ -54,7 +46,7 @@ public:
 		return instance;
 	}
 
-	void push(const std::string& path);
+	void push(const std::filesystem::path& path);
 
 	void launchIfNeed() {
 		if (!does_it_work.load(std::memory_order_acquire)) {
@@ -88,7 +80,7 @@ public:
 				});
 		}
 		stats.in_ocr_process = 0;
-
+		stats.checkStatus();
 	}
 	void resizeAndRestart(size_t new_size) {
 		size = new_size;

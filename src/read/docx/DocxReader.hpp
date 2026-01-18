@@ -91,4 +91,10 @@ public:
 
         return true;
     }
+    void rewindImpl() {
+        it.reset();
+        gen_obj = create_walker(filename);
+        it = std::make_unique<gen_iterator>(gen_obj.begin());
+        initialized = true;
+    }
 };

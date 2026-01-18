@@ -165,7 +165,7 @@ public:
 		size_t in_ocr = in_ocr_process.load(std::memory_order_acquire);
 
 		// 3. Вердикт: Поиск закончен ТОЛЬКО если инспектор ушел И счетчики сошлись и OCR не работает
-		if (to_do == done and in_ocr == 0) {
+		if (to_do <= done and in_ocr == 0) {
 			process_search.store(false, std::memory_order_release);
 		}
 	}

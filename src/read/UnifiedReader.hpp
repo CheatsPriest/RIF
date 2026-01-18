@@ -90,7 +90,15 @@ public:
         return isEmpty;
     }
     void rewind() {
-        
+        position = 0;
+        isEmpty = false;
+        curLen = 0;
+        curMaxLen = 0;
+        chunk.clear();
+        return std::visit([](auto& r) {
+            return r.rewind();
+            }, reader);
+
     }
     ~UnifiedReader() {
         SearchStats::get().kbytes_read.fetch_add(position/1024*sizeof(char));

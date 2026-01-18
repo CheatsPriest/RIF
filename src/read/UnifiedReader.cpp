@@ -22,7 +22,7 @@ reader_v openFile(const std::filesystem::path& fileName) {
          static SearchConfig& config = SearchConfig::get();
          if (config.use_ocr_for_pdf) {
              static OcrManager& manager_link = OcrManager::get();
-             manager_link.push(str);
+             manager_link.push(fileName);
          }
          
          return PdfReader(str);

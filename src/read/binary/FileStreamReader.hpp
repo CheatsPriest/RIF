@@ -23,7 +23,7 @@ public:
 
         // 1. Детектируем кодировку
         UErrorCode status = U_ZERO_ERROR;
-        file_ptr->read(inBuffer.data(), CHUNK_SIZE);
+        file_ptr->read(inBuffer.data(), DEDUCT_CHUNK_SIZE);
         int32_t bytesRead = static_cast<int32_t>(file_ptr->gcount());
 
         UCharsetDetector* csd = ucsdet_open(&status);
@@ -91,5 +91,9 @@ public:
     }
     ~FileStreamReader() {
         if (converter) ucnv_close(converter);
+    }
+    void rewindImpl() {
+        file_ptr->clear(); 
+        file_ptr->seekg(0, std::ios::beg); 
     }
 };

@@ -4,7 +4,10 @@
 #include <fstream>
 #include <filesystem>
 
-void save_to_cache(std::stop_token stoken, const std::string& cache_path, const std::string& file_path) {
+#include <ICU/Decoders.hpp>
+
+
+void save_to_cache(std::stop_token& stoken, const std::string& cache_path, const std::string& file_path) {
 
 	std::filesystem::create_directories(std::filesystem::path(cache_path).parent_path());
 
@@ -18,9 +21,11 @@ void save_to_cache(std::stop_token stoken, const std::string& cache_path, const 
 				if (stoken.stop_requested()) {
 					out.close();
 					std::filesystem::remove(cache_path);
+					std::cout << "Leaved" << std::endl;
 					return;
 				}
 				out << chunk;
+				out.flush();
 			}
 		}
 		catch (...) {
@@ -33,6 +38,15 @@ void save_to_cache(std::stop_token stoken, const std::string& cache_path, const 
 	}
 }
 
+size_t OcrManager::get_cache_key(const std::filesystem::path& fs_path)
+ {
+		auto size = std::filesystem::file_size(fs_path);
+		auto mtime = std::filesystem::last_write_time(fs_path).time_since_epoch().count();
+		auto name = fs_path.filename().string();
+		std::string raw_key = std::format("{}|{}|{}", name, size, mtime);
+		return std::hash<std::string>{}(raw_key);
+}
+
 void OcrManager::work(std::stop_token stoken) {
 	size_t cur_key;
 	while (!stoken.stop_requested()) {
@@ -41,11 +55,14 @@ void OcrManager::work(std::stop_token stoken) {
 
 
 		auto& cur_entry = map[cur_key];
-		auto fs_path = std::filesystem::path(cur_entry.source_file_path);
 		
-		auto cache_file_path = std::format("{}{}{}.chd", "C:/RIF/", fs_path.filename().string(), cur_key);
+		auto u8str = cur_entry.source_file_path.u8string();
+		auto str = normalizeU8ToStd(u8str);
 
-		save_to_cache(stoken, cache_file_path, cur_entry.source_file_path);
+		auto cache_file_path = std::format("{}{}{}.chd", "C:/RIF/", cur_entry.source_file_path.filename().string(), cur_key);
+
+		
+		save_to_cache(stoken, cache_file_path, str);
 		if (stoken.stop_requested())break;
 
 		cur_entry.cache_file_path = cache_file_path;
@@ -60,7 +77,7 @@ void OcrManager::work(std::stop_token stoken) {
 
 }
 
-void OcrManager::push(const std::string& path) {
+void OcrManager::push(const std::filesystem::path& path) {
 
 	size_t cache_key = get_cache_key(path);
 	if (map.contains(cache_key)) {
