@@ -4,6 +4,7 @@
 
 // 64КБ для оптимального кэша
 static constexpr size_t CHUNK_SIZE = 524288;
+static constexpr size_t OCR_CHUNK_SIZE = 65536;
 static constexpr size_t DEDUCT_CHUNK_SIZE = 16384;
 
 template<typename Derived>

@@ -39,6 +39,9 @@ private:
 
 	void work(std::stop_token stoken);
 	std::atomic<bool> does_it_work;
+
+	void loadCache();
+
 public:
 	
 	static OcrManager& get() {
@@ -90,7 +93,7 @@ public:
 	
 private:
 	OcrManager() : map(128), stats(SearchStats::get()), to_process(64), files_queue(FilesQueues::get()), size(2), does_it_work(false) {
-
+		loadCache();
 	}
 	OcrManager(const OcrManager&) = delete;
 	OcrManager(OcrManager&&) = delete;

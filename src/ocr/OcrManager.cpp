@@ -6,8 +6,9 @@
 
 #include <ICU/Decoders.hpp>
 
+const char* cached_ocr_path = "C:/RIF/";
 
-void save_to_cache(std::stop_token& stoken, const std::string& cache_path, const std::string& file_path) {
+void save_to_cache(std::stop_token stoken, const std::string& cache_path, const std::string& file_path) {
 
 	std::filesystem::create_directories(std::filesystem::path(cache_path).parent_path());
 
@@ -16,7 +17,7 @@ void save_to_cache(std::stop_token& stoken, const std::string& cache_path, const
 	if (out.is_open() and !stoken.stop_requested()) {
 		try {
 			OcrReader reader(file_path);
-			string chunk;
+			std::string_view chunk;
 			while (reader.readNextChunk(chunk)) {
 				if (stoken.stop_requested()) {
 					out.close();
@@ -24,7 +25,8 @@ void save_to_cache(std::stop_token& stoken, const std::string& cache_path, const
 					std::cout << "Leaved" << std::endl;
 					return;
 				}
-				out << chunk;
+				
+				out.write(chunk.data(), chunk.size());
 				out.flush();
 			}
 		}
@@ -59,7 +61,7 @@ void OcrManager::work(std::stop_token stoken) {
 		auto u8str = cur_entry.source_file_path.u8string();
 		auto str = normalizeU8ToStd(u8str);
 
-		auto cache_file_path = std::format("{}{}{}.chd", "C:/RIF/", cur_entry.source_file_path.filename().string(), cur_key);
+		auto cache_file_path = std::format("{}[{}[{}.chd", cached_ocr_path, cur_entry.source_file_path.filename().string(), cur_key);
 
 		
 		save_to_cache(stoken, cache_file_path, str);
@@ -75,6 +77,44 @@ void OcrManager::work(std::stop_token stoken) {
 
 	}
 
+}
+
+void OcrManager::loadCache() {
+	namespace fs = std::filesystem;
+
+	if (!fs::exists(cached_ocr_path)) return;
+
+	for (const auto& entry : fs::directory_iterator(cached_ocr_path)) {
+		if (!entry.is_regular_file() || entry.path().extension() != ".chd")
+			continue;
+
+		std::string filename = entry.path().filename().string();
+
+		// Ищем позиции разделителей '[' с конца
+		size_t last_pipe = filename.find_last_of('[');
+		size_t ext_dot = filename.find_last_of('.');
+
+		if (last_pipe != std::string::npos && ext_dot != std::string::npos) {
+			try {
+				// Извлекаем ключ (тот самый size_t cur_key)
+				std::string key_str = filename.substr(last_pipe + 1, ext_dot - last_pipe - 1);
+				size_t key = std::stoull(key_str);
+
+				// Формируем запись
+				CacheEntry cached_entry;
+				cached_entry.cache_file_path = entry.path().string();
+				cached_entry.state = OcrCacheState::READY;
+				// source_file_path восстановится полностью только при первой встрече 
+				// реального файла в поисковике, пока можем оставить пустым или записать имя
+
+				map.insert(key, std::move(cached_entry));
+			}
+			catch (...) {
+				// Если файл поврежден или имя не по формату — игнорируем
+				continue;
+			}
+		}
+	}
 }
 
 void OcrManager::push(const std::filesystem::path& path) {
