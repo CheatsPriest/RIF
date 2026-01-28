@@ -35,7 +35,7 @@ void Window::initImGui() {
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 
 
-    std::string fontPath = std::string(PROJECT_PATH) + "/assets/fonts/NotoSans-Medium.ttf";
+    std::string fontPath = std::string(INTERNAL_PATH) + "/assets/fonts/NotoSans-Medium.ttf";
    
     ImFont* font = io.Fonts->AddFontFromFileTTF(fontPath.c_str(), 18.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
 

@@ -19,6 +19,8 @@ private:
 
 	std::chrono::steady_clock::time_point start_point;
 	std::chrono::steady_clock::time_point end_point;
+	bool need_to_count_time;
+
 
 	int depth;
 	bool respect_registers;
@@ -43,7 +45,7 @@ private:
 	void drawResultWindow();
 public:
 	MainMenu() : config(SearchConfig::get()), syn_setting(SynonymsSettings::get()), stats(SearchStats::get()), result_queue(ResultQueue::get())
-		, depth(0), respect_registers(false) {
+		, depth(0), respect_registers(false), need_to_count_time(false){
 		NFD_Init();
 		start_point = std::chrono::steady_clock::now();
 		end_point = std::chrono::steady_clock::now();

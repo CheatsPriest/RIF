@@ -15,6 +15,9 @@ namespace fs = std::filesystem;
 
 DeductorStemmer stem;
 
+
+std::string path_to_syn = std::string(INTERNAL_PATH) + std::string("/synonyms");
+
 class ProcessWordsFromTemplateForSynonyms {
     SearchConfig& search_config;
     SynonymsSettings& settings;
@@ -68,7 +71,7 @@ class SynonymsReader {
 public:
     SynonymsReader() : settings(SynonymsSettings::get()), free_group_id(0){}
 
-    void operator()(const std::string& folder_path = "C:\\testFlood\\synonyms") {
+    void operator()(const std::string& folder_path = path_to_syn) {
         free_group_id = 0;
         if (read_from_folder(folder_path)) {
             settings.words_from_template.clear();

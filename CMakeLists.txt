@@ -71,6 +71,10 @@ target_compile_definitions(RIF PRIVATE
     PROJECT_PATH="${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
+target_compile_definitions(RIF PRIVATE 
+    INTERNAL_PATH="C:/RIF"
+)
+
 # 6. Подключение инклюдов (Modern CMake использует target_...)
 find_path(IMGUI_INCLUDE_DIR NAMES imgui.h)
 

@@ -7,6 +7,10 @@ namespace fs = std::filesystem;
 
 void MainMenu::optionsMenu()
 {
+    if (need_to_count_time) {
+        need_to_count_time = false;
+        end_point = std::chrono::steady_clock::now();
+    }
     ImGui::Begin("Управление");
 
     ImGui::InputText("Поиск...", &search_input);
@@ -42,7 +46,7 @@ void MainMenu::optionsMenu()
 
 void MainMenu::duringTheSearch()
 {
-    end_point = std::chrono::steady_clock::now();
+    
     ImGui::Begin("Информатор поиска");
     ImGui::Text("Идет поиск, ожидайте");
 
@@ -148,6 +152,7 @@ void MainMenu::startSearch()
         // Запуск(пинок ядру)
         async_core.startSeacrhing();
         start_point = std::chrono::steady_clock().now();
+        need_to_count_time = true;
     }
 }
 
@@ -171,10 +176,10 @@ void MainMenu::loadNewResults()
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
-
+int c = 0;
 void TextWindowWithCopy(const char* title, const std::string& content,
+    
     float width = 0.0f, float height = 0.0f) {
-
     // Определяем размеры
     ImVec2 window_size(width, height);
     if (width <= 0) window_size.x = ImGui::GetIO().DisplaySize.x * 0.8f;
@@ -239,7 +244,7 @@ void MainMenu::drawResultWindow()
             }
             if (place.showMe) {
                 //ImGui::TextWrapped(place.context.c_str());
-                TextWindowWithCopy(el.file.c_str(), place.context);
+                TextWindowWithCopy((el.file + std::to_string(id2)).c_str(), place.context);
             }
 
             ImGui::PopID();

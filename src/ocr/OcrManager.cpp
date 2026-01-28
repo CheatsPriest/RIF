@@ -6,7 +6,9 @@
 
 #include <ICU/Decoders.hpp>
 
-const char* cached_ocr_path = "C:/RIF/";
+
+std::string cached_ocr_path = std::string(INTERNAL_PATH) + std::string("/cache/");
+
 
 void save_to_cache(std::stop_token stoken, const std::string& cache_path, const std::string& file_path) {
 

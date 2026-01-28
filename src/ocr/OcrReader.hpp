@@ -49,7 +49,7 @@ public:
         buffer.reserve(OCR_CHUNK_SIZE + 1024);
 
         //OCR
-        auto path = std::string(PROJECT_PATH) + "/assets/tessdata";
+        auto path = std::string(INTERNAL_PATH) + "/assets/tessdata";
         // --- Инициализация Tesseract ---
         ocr_api_ptr = std::make_unique<tesseract::TessBaseAPI>();
         // NULL использует TESSDATA_PREFIX, "rus+eng" для двуязычного поиска
