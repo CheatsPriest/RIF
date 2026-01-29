@@ -121,7 +121,7 @@ public:
             }
             else {
                 reader.refreshChunk();
-                view = reader.getChunk();
+                if(!reader.empty())view = reader.getChunk();
             }
         }
 

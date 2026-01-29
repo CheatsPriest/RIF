@@ -41,7 +41,7 @@ private:
 	std::atomic<bool> does_it_work;
 
 	void loadCache();
-
+	std::string cached_ocr_path ;
 public:
 	
 	static OcrManager& get() {
@@ -93,7 +93,9 @@ public:
 	
 private:
 	OcrManager() : map(128), stats(SearchStats::get()), to_process(64), files_queue(FilesQueues::get()), size(2), does_it_work(false) {
+		cached_ocr_path = std::string(INTERNAL_PATH) + std::string("/cache/");
 		loadCache();
+		
 	}
 	OcrManager(const OcrManager&) = delete;
 	OcrManager(OcrManager&&) = delete;

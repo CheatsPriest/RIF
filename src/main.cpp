@@ -41,7 +41,11 @@ int main() {
     SetConsoleOutputCP(CP_UTF8); // Требует #include <windows.h>
     std::setvbuf(stdout, nullptr, _IOFBF, 1000); // Чтобы вывод не тормозил
 #endif
-   
+    DesktopUi ui;
+    ui.run();
+
+    //Все что ниже для дебага 
+
     /*OcrManager& manager = OcrManager::get();
     std::string str = "C:/src/picture/picture.pdf";
     manager.push(str);
@@ -87,8 +91,7 @@ int main() {
         std::cout << "====SECTION====" << std::endl;
     }*/
 
-    DesktopUi ui;
-    ui.run();
+   
 
     //std::string path = "C:\\src\\ANSI_2051.txt"; // Укажите свой путь
     //std::u16string content = readAnyFileToUTF16(path);

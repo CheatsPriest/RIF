@@ -116,9 +116,15 @@ private:
                 const auto& path = entry.path();
                 if (entry.is_directory()) {
                     // Проверяем, не игнорируется ли папка
-                    if (shouldIgnoreFolder(path.filename().string())) {
+                    try {
+                        if (shouldIgnoreFolder(path.filename().string())) {
+                            continue;
+                        }
+                    }
+                    catch (...) {
                         continue;
                     }
+                   
 
                     // Проверяем глубину рекурсии
                     if (current_depth < config.depth) {
@@ -135,6 +141,9 @@ private:
             std::cout << "Ошибка доступа к папке " << folder_path
                 << ": " << e.what() << std::endl;
             return false;
+        }
+        catch (...) {
+            std::cout << "Неизвестная ошибка: " << folder_path << std::endl;
         }
     }
 
@@ -154,17 +163,22 @@ private:
     }
 
     bool isExtensionAllowed(const fs::path& file_path) const {
-        if (config.allowed_extensions.empty()) {
-            return true;
-        }
+        try {
+            if (config.allowed_extensions.empty()) {
+                return true;
+            }
 
-        std::string ext = file_path.extension().string(); 
-        if (ext.empty()) {
-            return false; 
-        }
-        lowercase(ext);
+            std::string ext = file_path.extension().string();
+            if (ext.empty()) {
+                return false;
+            }
+            lowercase(ext);
 
-        return config.allowed_extensions.contains(ext);
+            return config.allowed_extensions.contains(ext);
+        }
+        catch (...) {
+            return false;
+        }
     }
 };
 
